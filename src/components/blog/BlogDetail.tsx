@@ -1,0 +1,177 @@
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Calendar, Tag, Edit, Trash2, Share2 } from 'lucide-react';
+import { BlogPost, User } from '../../types';
+import { useBlogStore } from '../../store/blogStore';
+import { useAuthStore } from '../../store/authStore';
+
+interface BlogDetailProps {
+  post: BlogPost;
+  author: User;
+}
+
+const BlogDetail: React.FC<BlogDetailProps> = ({ post, author }) => {
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const { deletePost } = useBlogStore();
+  const formattedDate = new Date(post.createdAt).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  
+  const isAuthor = user?.id === post.authorId;
+  
+  const handleDelete = () => {
+    if (window.confirm('Are you sure you want to delete this post?')) {
+      deletePost(post.id);
+      navigate('/');
+    }
+  };
+  
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: post.title,
+          text: post.excerpt,
+          url: window.location.href,
+        });
+      } else {
+        // Fallback for browsers that don't support the Web Share API
+        navigator.clipboard.writeText(window.location.href);
+        alert('Link copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  };
+
+  return (
+    <article className="bg-white shadow-md rounded-lg overflow-hidden">
+      {post.coverImage && (
+        <div className="relative h-96 w-full">
+          <img
+            src={post.coverImage}
+            alt={post.title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/70 to-transparent">
+            <div className="flex items-center space-x-2 text-white text-sm mb-2">
+              <Link
+                to={`/category/${post.category.toLowerCase()}`}
+                className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium"
+              >
+                {post.category}
+              </Link>
+              <span className="text-gray-300">•</span>
+              <div className="flex items-center">
+                <Calendar size={14} className="mr-1" />
+                <span>{formattedDate}</span>
+              </div>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-white font-serif">{post.title}</h1>
+          </div>
+        </div>
+      )}
+      
+      {!post.coverImage && (
+        <div className="pt-8 px-6">
+          <div className="flex items-center space-x-2 text-gray-500 text-sm mb-2">
+            <Link
+              to={`/category/${post.category.toLowerCase()}`}
+              className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium"
+            >
+              {post.category}
+            </Link>
+            <span>•</span>
+            <div className="flex items-center">
+              <Calendar size={14} className="mr-1" />
+              <span>{formattedDate}</span>
+            </div>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 font-serif">{post.title}</h1>
+        </div>
+      )}
+      
+      <div className="p-6">
+        <div className="flex items-center mb-8">
+          <div className="flex-shrink-0 mr-3">
+            {author.avatar ? (
+              <img
+                src={author.avatar}
+                alt={author.name}
+                className="h-10 w-10 rounded-full"
+              />
+            ) : (
+              <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center">
+                <span className="text-blue-800 font-medium">
+                  {author.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-900">{author.name}</p>
+            {author.bio && (
+              <p className="text-sm text-gray-500">{author.bio}</p>
+            )}
+          </div>
+        </div>
+        
+        <div 
+          className="prose prose-blue max-w-none mb-8"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
+        
+        {post.hashtags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mb-8">
+            <Tag size={16} className="text-gray-500" />
+            {post.hashtags.map((tag) => (
+              <Link
+                key={tag}
+                to={`/tag/${tag}`}
+                className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors"
+              >
+                #{tag}
+              </Link>
+            ))}
+          </div>
+        )}
+        
+        <div className="flex justify-between items-center border-t pt-6">
+          <div className="flex space-x-2">
+            {isAuthor && (
+              <>
+                <button
+                  onClick={() => navigate(`/edit/${post.id}`)}
+                  className="flex items-center px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                >
+                  <Edit size={16} className="mr-1" />
+                  Edit
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="flex items-center px-3 py-1.5 text-sm text-gray-600 hover:text-red-600 transition-colors"
+                >
+                  <Trash2 size={16} className="mr-1" />
+                  Delete
+                </button>
+              </>
+            )}
+          </div>
+          
+          <button
+            onClick={handleShare}
+            className="flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-md text-sm hover:bg-blue-200 transition-colors"
+          >
+            <Share2 size={16} className="mr-2" />
+            Share
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+};
+
+export default BlogDetail;
