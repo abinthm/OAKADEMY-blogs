@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, PenSquare, User, LogOut } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import logo from '../../assets/Frame 1.svg';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,12 +16,18 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+    <nav className="bg-white shadow-xl w-full">
+      <div className="max-w-full mx-auto px-8 sm:px-12 lg:px-16">
+        <div className="flex justify-between h-20">
           <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0 flex items-center">
-              <span className="text-[#3B3D87] font-serif text-2xl font-bold">Voices of Oak</span>
+            <Link to="/" className="flex-shrink-0">
+              <img src={logo} alt="Logo" className="h-12 w-auto" />
+            </Link>
+          </div>
+          
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center h-20">
+            <Link to="/" className="flex-shrink-0">
+              <span className="text-[#3B3D87] font-serif text-2xl font-bold whitespace-nowrap">Voices of Oak</span>
             </Link>
           </div>
           

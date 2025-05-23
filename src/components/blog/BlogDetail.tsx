@@ -14,13 +14,13 @@ const BlogDetail: React.FC<BlogDetailProps> = ({ post, author }) => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { deletePost } = useBlogStore();
-  const formattedDate = new Date(post.createdAt).toLocaleDateString('en-US', {
+  const formattedDate = post.created_at ? new Date(post.created_at).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
-  });
+  }) : 'Date not available';
   
-  const isAuthor = user?.id === post.authorId;
+  const isAuthor = user?.id === post.author_id;
   
   const handleDelete = () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
@@ -49,12 +49,19 @@ const BlogDetail: React.FC<BlogDetailProps> = ({ post, author }) => {
 
   return (
     <article className="bg-white shadow-md rounded-lg overflow-hidden">
-      {post.coverImage && (
+      {post.cover_image && (
         <div className="relative h-96 w-full">
           <img
-            src={post.coverImage}
+            src={post.cover_image}
             alt={post.title}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              console.error('Error loading image:', target.src);
+              // Remove any query parameters or optimized paths
+              const baseUrl = target.src.split('?')[0].replace('/optimized/', '/');
+              target.src = baseUrl;
+            }}
           />
           <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/70 to-transparent">
             <div className="flex items-center space-x-2 text-white text-sm mb-2">
@@ -75,7 +82,7 @@ const BlogDetail: React.FC<BlogDetailProps> = ({ post, author }) => {
         </div>
       )}
       
-      {!post.coverImage && (
+      {!post.cover_image && (
         <div className="pt-8 px-6">
           <div className="flex items-center space-x-2 text-gray-500 text-sm mb-2">
             <Link
@@ -102,6 +109,13 @@ const BlogDetail: React.FC<BlogDetailProps> = ({ post, author }) => {
                 src={author.avatar}
                 alt={author.name}
                 className="h-10 w-10 rounded-full"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  console.error('Error loading image:', target.src);
+                  // Remove any query parameters or optimized paths
+                  const baseUrl = target.src.split('?')[0].replace('/optimized/', '/');
+                  target.src = baseUrl;
+                }}
               />
             ) : (
               <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center">

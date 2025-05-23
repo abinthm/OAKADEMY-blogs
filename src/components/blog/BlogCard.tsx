@@ -9,21 +9,28 @@ interface BlogCardProps {
 }
 
 const BlogCard: React.FC<BlogCardProps> = ({ post, authorName }) => {
-  const formattedDate = new Date(post.createdAt).toLocaleDateString('en-US', {
+  const formattedDate = post.created_at ? new Date(post.created_at).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
-  });
+  }) : 'Date not available';
 
   return (
     <article className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
       <Link to={`/post/${post.id}`}>
-        {post.coverImage && (
+        {post.cover_image && (
           <div className="relative h-48 overflow-hidden">
             <img
-              src={post.coverImage}
+              src={post.cover_image}
               alt={post.title}
               className="w-full h-full object-cover transform transition-transform duration-500 hover:scale-105"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                console.error('Error loading image:', target.src);
+                // Remove any query parameters or optimized paths
+                const baseUrl = target.src.split('?')[0].replace('/optimized/', '/');
+                target.src = baseUrl;
+              }}
             />
             <div className="absolute top-0 left-0 px-3 py-1 m-2 bg-blue-600 text-white text-xs font-semibold rounded">
               {post.category}

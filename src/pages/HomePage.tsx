@@ -48,57 +48,26 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="bg-[#3B3D87] rounded-xl shadow-xl p-8 mb-12">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-white font-serif mb-4">
-            🌳 Your Thought. Your Story. Our Future.
-          </h1>
-          <p className="text-xl text-gray-200 mb-4">
-            Welcome to Voices of Oak – where stories root change.
-          </p>
-          <p className="text-lg text-gray-200 mb-4">
-            A global movement by youth, for youth – sharing reflections, realities, and revolutionary ideas.
-          </p>
-          <p className="text-lg text-gray-200 mb-8">
-            Whether it's about your village, your vision, or the voice of the unheard — this is where it begins.
-          </p>
+      <div className="flex flex-col items-center justify-center max-w-4xl mx-auto mb-16">
+        <h1 className="text-4xl md:text-6xl font-bold text-black font-serif mb-6 whitespace-nowrap">
+          Your Thought. Your Story. Our Future.
+        </h1>
+        <p className="text-2xl font-semibold text-black mb-4 whitespace-nowrap">
+          Welcome to Voices of Oak
+        </p>
+        <p className="text-xl text-black mb-4 whitespace-nowrap">
+          The Official Blog & Storytelling Platform of Oakademy
+        </p>
+        <p className="text-lg text-gray-700 mb-8 max-w-3xl text-center">
+          A global movement by youth, for youth—where reflections, real stories, and bold ideas spark change, from personal journeys to unheard voices around the world.
+        </p>
           
-          <div className="relative max-w-xl mx-auto mb-8">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-3 py-3 border border-transparent rounded-md leading-5 bg-white bg-opacity-90 placeholder-gray-500 focus:outline-none focus:bg-white focus:ring-2 focus:ring-white focus:border-white text-gray-900"
-              placeholder="Search for stories, topics, or tags..."
-            />
-          </div>
-          
-          {user ? (
-            <Link
-              to="/write"
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
-            >
-              ✍ Start Writing – Because your voice doesn't just matter... it leads.
-              <ChevronRight className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
-            </Link>
-          ) : (
-            <div className="space-y-4">
-              <Link
-                to="/login"
-                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
-              >
-                🎙 Start Contributing
-              </Link>
-              <p className="text-sm text-gray-300">
-                Trusted by young changemakers across continents.<br />
-                Guided by purpose. Grown with heart.
-              </p>
-            </div>
-          )}
-        </div>
+        <Link
+          to="/write"
+          className="inline-flex items-center px-8 py-4 text-lg font-medium rounded-full text-white bg-[#3B3D87] hover:bg-[#2d2f66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B3D87] transition-colors"
+        >
+          Start Writing - Your Voice Matters
+        </Link>
       </div>
       
       <div className="mb-8">

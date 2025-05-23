@@ -152,7 +152,7 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
           await updatePost(postId, postData);
         }
       } else {
-        const { data, error } = await supabase
+        const { data: postData, error: postError } = await supabase
           .from('posts')
           .insert({
             title,
@@ -169,12 +169,12 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
           .select()
           .single();
 
-        if (error) throw error;
+        if (postError) throw postError;
 
         // Save hashtags
         if (hashtags.length > 0) {
           const hashtagData = hashtags.map(hashtag => ({
-            post_id: data.id,
+            post_id: postData.id,
             hashtag
           }));
 
@@ -187,7 +187,25 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
           }
         }
 
-        navigate(`/post/${data.id}`);
+        // Add the post to the store
+        addPost({
+          id: postData.id,
+          title: postData.title,
+          content: postData.content,
+          excerpt: postData.excerpt,
+          cover_image: postData.cover_image,
+          category: postData.category,
+          hashtags,
+          author_id: user.id,
+          authorName: user.name,
+          created_at: postData.created_at,
+          updated_at: postData.updated_at,
+          published: postData.published,
+          status: postData.status
+        });
+
+        // Navigate after store is updated
+        navigate(`/post/${postData.id}`);
         return;
       }
       

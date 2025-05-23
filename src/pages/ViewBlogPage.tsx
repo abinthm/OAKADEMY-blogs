@@ -47,7 +47,7 @@ const ViewBlogPage: React.FC = () => {
 
   // Check if user can view this post
   const canViewPost = post.status === 'approved' || 
-                     (user && (user.id === post.authorId || user.isAdmin));
+                     (user && (user.id === post.author_id || user.isAdmin));
 
   if (!canViewPost) {
     return (
@@ -66,10 +66,10 @@ const ViewBlogPage: React.FC = () => {
 
   // Create author object from post data
   const author: User = {
-    id: post.authorId,
+    id: post.author_id,
     name: post.authorName || 'Community Member',
     email: '',  // Email is not displayed in the UI
-    createdAt: post.createdAt,
+    createdAt: new Date(post.created_at), // Convert string date to Date object
     bio: 'Community Contributor'  // Default bio
   };
   
