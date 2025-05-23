@@ -19,11 +19,22 @@ const categories: Category[] = [
 ];
 
 const HomePage: React.FC = () => {
-  const { posts } = useBlogStore();
+  const { posts, fetchPosts } = useBlogStore();
   const { user } = useAuthStore();
   const [activeCategory, setActiveCategory] = useState<Category | 'All'>('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch posts when component mounts
+  useEffect(() => {
+    const loadPosts = async () => {
+      setIsLoading(true);
+      await fetchPosts();
+      setIsLoading(false);
+    };
+    loadPosts();
+  }, [fetchPosts]);
 
   useEffect(() => {
     // Only show approved posts on the homepage
@@ -71,63 +82,84 @@ const HomePage: React.FC = () => {
       </div>
       
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900 font-serif">Top Voices This Month</h2>
-          <div className="flex overflow-x-auto space-x-2 pb-2">
+        <div className="flex flex-wrap gap-4 mb-6">
+          <button
+            onClick={() => setActiveCategory('All')}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeCategory === 'All'
+                ? 'bg-[#3B3D87] text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            All
+          </button>
+          {categories.map((cat) => (
             <button
-              onClick={() => setActiveCategory('All')}
-              className={`px-4 py-2 rounded-full text-sm font-medium ${
-                activeCategory === 'All'
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                activeCategory === cat
                   ? 'bg-[#3B3D87] text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              } transition-colors`}
+              }`}
             >
-              All
+              {cat}
             </button>
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
-                className={`px-4 py-2 rounded-full text-sm font-medium ${
-                  activeCategory === category
-                    ? 'bg-[#3B3D87] text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                } transition-colors whitespace-nowrap`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
-        
-        {filteredPosts.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">
-              {searchTerm
-                ? `No stories found for "${searchTerm}"`
-                : 'No stories found in this category'}
-            </p>
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm('')}
-                className="mt-4 text-[#3B3D87] hover:text-[#2d2f66]"
-              >
-                Clear search
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPosts.map((post) => (
-              <BlogCard
-                key={post.id}
-                post={post}
-                authorName={post.authorName || 'Community Member'}
-              />
-            ))}
-          </div>
-        )}
+
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search stories..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+        </div>
       </div>
+
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((n) => (
+            <div key={n} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+              <div className="h-48 bg-gray-200" />
+              <div className="p-6">
+                <div className="h-6 bg-gray-200 rounded w-3/4 mb-4" />
+                <div className="h-4 bg-gray-200 rounded w-full mb-2" />
+                <div className="h-4 bg-gray-200 rounded w-2/3" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : filteredPosts.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500 text-lg">
+            {searchTerm
+              ? `No stories found for "${searchTerm}"`
+              : 'No stories found in this category'}
+          </p>
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="mt-4 text-[#3B3D87] hover:text-[#2d2f66]"
+            >
+              Clear search
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredPosts.map((post) => (
+            <BlogCard
+              key={post.id}
+              post={post}
+              authorName={post.authorName || 'Community Member'}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

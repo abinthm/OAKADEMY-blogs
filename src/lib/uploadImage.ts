@@ -27,9 +27,16 @@ export async function uploadImage(file: File, bucket: string = 'blog-images') {
     }
 
     // Get the public URL for the uploaded file
-    const { data: { publicUrl } } = supabase.storage
+    const { data: urlData } = await supabase.storage
       .from(bucket)
-      .getPublicUrl(fileName);
+      .createSignedUrl(filePath, 31536000); // URL valid for 1 year
+
+    if (!urlData?.signedUrl) {
+      throw new Error('Failed to generate public URL');
+    }
+
+    // Convert signed URL to public URL by removing the token
+    const publicUrl = urlData.signedUrl.split('?')[0];
 
     // Log the URL for debugging
     console.log('Generated public URL:', publicUrl);

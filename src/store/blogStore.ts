@@ -8,6 +8,7 @@ import type { Database } from '../lib/database.types';
 interface BlogState {
   posts: BlogPost[];
   drafts: BlogPost[];
+  fetchPosts: () => Promise<void>;
   addPost: (post: BlogPost) => void;
   updatePost: (id: string, post: Partial<BlogPost>) => void;
   deletePost: (id: string) => void;
@@ -27,6 +28,52 @@ export const useBlogStore = create<BlogState>()(
     (set, get) => ({
       posts: [],
       drafts: [],
+      
+      fetchPosts: async () => {
+        try {
+          // Fetch posts from Supabase
+          const { data: posts, error: postsError } = await supabase
+            .from('posts')
+            .select(`
+              *,
+              profiles:author_id (
+                name
+              ),
+              post_hashtags (
+                hashtag
+              )
+            `);
+
+          if (postsError) {
+            console.error('Error fetching posts:', postsError);
+            return;
+          }
+
+          // Transform the data to match BlogPost type
+          const transformedPosts: BlogPost[] = posts.map(post => ({
+            id: post.id,
+            title: post.title,
+            content: post.content,
+            excerpt: post.excerpt,
+            cover_image: post.cover_image,
+            category: post.category,
+            author_id: post.author_id,
+            authorName: post.profiles?.name,
+            hashtags: post.post_hashtags?.map((h: { hashtag: string }) => h.hashtag) || [],
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            published: post.published,
+            status: post.status as PostStatus,
+            reviewed_by: post.reviewed_by,
+            reviewed_at: post.reviewed_at,
+            review_notes: post.review_notes
+          }));
+
+          set({ posts: transformedPosts });
+        } catch (error) {
+          console.error('Error in fetchPosts:', error);
+        }
+      },
       
       addPost: (post) => {
         set((state) => ({

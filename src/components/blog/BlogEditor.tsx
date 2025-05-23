@@ -75,31 +75,17 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
     }
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      setError('Please upload an image file');
-      return;
-    }
-
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image size should be less than 5MB');
-      return;
-    }
-
-    setIsUploading(true);
-    setError(null);
-
+  const handleImageUpload = async (file: File) => {
     try {
+      setIsUploading(true);
       const imageUrl = await uploadImage(file);
-      setCoverImage(imageUrl);
-    } catch (err) {
-      setError('Failed to upload image. Please try again.');
-      console.error('Image upload error:', err);
+      
+      // Ensure the URL is absolute
+      const absoluteUrl = imageUrl.startsWith('http') ? imageUrl : `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/blog-images/${imageUrl.split('/').pop()}`;
+      
+      setCoverImage(absoluteUrl);
+    } catch (error) {
+      setError((error as Error).message || 'Failed to upload image');
     } finally {
       setIsUploading(false);
     }
@@ -273,7 +259,11 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
           <input
             type="file"
             accept="image/*"
-            onChange={handleImageUpload}
+            onChange={(e) => {
+              if (e.target.files) {
+                handleImageUpload(e.target.files[0]);
+              }
+            }}
             ref={fileInputRef}
             className="hidden"
           />

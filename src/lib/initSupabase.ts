@@ -15,20 +15,36 @@ export async function initializeStorage() {
     const blogImagesBucket = buckets?.find(bucket => bucket.name === 'blog-images');
 
     if (!blogImagesBucket) {
-      console.error(
-        'The "blog-images" bucket does not exist. Please create it manually in the Supabase dashboard:\n' +
-        '1. Go to Storage in your Supabase dashboard\n' +
-        '2. Click "New Bucket"\n' +
-        '3. Name it "blog-images"\n' +
-        '4. Uncheck "Public bucket"\n' +
-        '5. Click "Create bucket"\n' +
-        '6. Set up the required policies in the Storage > Policies section'
-      );
-      return;
+      // Create the blog-images bucket if it doesn't exist
+      const { error: createError } = await supabase
+        .storage
+        .createBucket('blog-images', {
+          public: true,
+          fileSizeLimit: 50 * 1024 * 1024, // 50MB
+          allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+        });
+
+      if (createError) {
+        console.error('Error creating bucket:', createError);
+        return;
+      }
+      console.log('Successfully created blog-images bucket');
+    } else {
+      // Update bucket to be public if it exists
+      const { error: updateError } = await supabase
+        .storage
+        .updateBucket('blog-images', {
+          public: true
+        });
+
+      if (updateError) {
+        console.error('Error updating bucket:', updateError);
+        return;
+      }
     }
 
-    console.log('Successfully verified blog-images bucket exists');
+    console.log('Successfully configured blog-images bucket');
   } catch (error) {
-    console.error('Error checking storage bucket:', error);
+    console.error('Error configuring storage bucket:', error);
   }
 } 
