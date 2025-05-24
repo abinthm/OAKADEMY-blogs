@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
           
           <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center h-20">
             <Link to="/" className="flex-shrink-0">
-              <span className="text-[#3B3D87] font-serif text-2xl font-bold whitespace-nowrap">Voices of Oak</span>
+              <span className="text-[#3B3D87] font-serif text-xl font-bold whitespace-nowrap tracking-wide">Voices of Oak</span>
             </Link>
           </div>
           

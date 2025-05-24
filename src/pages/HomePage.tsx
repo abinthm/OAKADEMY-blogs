@@ -74,16 +74,18 @@ const HomePage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col items-center justify-center max-w-4xl mx-auto mb-16 px-4">
-        <h1 className="text-[1.5rem] sm:text-[2rem] md:text-[2.5rem] lg:text-[3.5rem] font-bold text-black font-serif mb-6 text-center whitespace-nowrap">
-          Your Thought. Your Story. Our Future.
+        <h1 className="text-[2.25rem] sm:text-[1.75rem] md:text-[2rem] lg:text-[2.75rem] font-bold text-black font-serif mb-6 text-center leading-tight">
+          <span className="block lg:inline">Your Thought.</span>{' '}
+          <span className="block lg:inline -mt-2">Your Story.</span>{' '}
+          <span className="block lg:inline -mt-2">Our Future.</span>
         </h1>
-        <p className="text-xl md:text-2xl font-semibold text-black mb-4 text-center">
+        <p className="text-sm md:text-base font-semibold text-black mb-3 text-center">
           Welcome to Voices of Oak
         </p>
-        <p className="text-lg md:text-xl text-black mb-4 text-center">
+        <p className="text-xs md:text-sm text-black mb-3 text-center">
           The Official Blog & Storytelling Platform of Oakademy
         </p>
-        <p className="text-base md:text-lg text-gray-700 mb-8 max-w-3xl text-center px-4">
+        <p className="text-xs md:text-sm text-gray-700 mb-6 max-w-3xl text-center px-4">
           A global movement by youth, for youth—where reflections, real stories, and bold ideas spark change, from personal journeys to unheard voices around the world.
         </p>
           
