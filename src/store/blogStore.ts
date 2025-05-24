@@ -9,6 +9,7 @@ interface BlogState {
   posts: BlogPost[];
   drafts: BlogPost[];
   fetchPosts: () => Promise<void>;
+  fetchDrafts: () => Promise<void>;
   addPost: (post: BlogPost) => void;
   updatePost: (id: string, post: Partial<BlogPost>) => void;
   deletePost: (id: string) => void;
@@ -21,6 +22,8 @@ interface BlogState {
   rejectPost: (id: string, reviewNotes: string) => void;
   saveDraft: (draft: BlogPost) => void;
   publishDraft: (id: string) => void;
+  createPost: (post: Partial<BlogPost>) => Promise<BlogPost>;
+  publishPost: (id: string) => Promise<void>;
 }
 
 export const useBlogStore = create<BlogState>()(
@@ -31,47 +34,55 @@ export const useBlogStore = create<BlogState>()(
       
       fetchPosts: async () => {
         try {
-          // Fetch posts from Supabase
-          const { data: posts, error: postsError } = await supabase
+          const { data: posts, error } = await supabase
             .from('posts')
             .select(`
               *,
-              profiles:author_id (
-                name
-              ),
-              post_hashtags (
-                hashtag
+              author:profiles(
+                id,
+                name,
+                avatar_url,
+                role
               )
-            `);
+            `)
+            .eq('published', true)
+            .order('created_at', { ascending: false });
 
-          if (postsError) {
-            console.error('Error fetching posts:', postsError);
+          if (error) {
+            console.error('Error fetching posts:', error);
             return;
           }
 
-          // Transform the data to match BlogPost type
-          const transformedPosts: BlogPost[] = posts.map(post => ({
-            id: post.id,
-            title: post.title,
-            content: post.content,
-            excerpt: post.excerpt,
-            cover_image: post.cover_image,
-            category: post.category,
-            author_id: post.author_id,
-            authorName: post.profiles?.name,
-            hashtags: post.post_hashtags?.map((h: { hashtag: string }) => h.hashtag) || [],
-            created_at: post.created_at,
-            updated_at: post.updated_at,
-            published: post.published,
-            status: post.status as PostStatus,
-            reviewed_by: post.reviewed_by,
-            reviewed_at: post.reviewed_at,
-            review_notes: post.review_notes
-          }));
-
-          set({ posts: transformedPosts });
+          set({ posts: posts || [] });
         } catch (error) {
           console.error('Error in fetchPosts:', error);
+        }
+      },
+      
+      fetchDrafts: async () => {
+        try {
+          const { data: drafts, error } = await supabase
+            .from('posts')
+            .select(`
+              *,
+              author:profiles(
+                id,
+                name,
+                avatar_url,
+                role
+              )
+            `)
+            .eq('published', false)
+            .order('created_at', { ascending: false });
+
+          if (error) {
+            console.error('Error fetching drafts:', error);
+            return;
+          }
+
+          set({ drafts: drafts || [] });
+        } catch (error) {
+          console.error('Error in fetchDrafts:', error);
         }
       },
       
@@ -209,6 +220,82 @@ export const useBlogStore = create<BlogState>()(
           posts: [...state.posts, { ...draft, status: 'pending', published: false }],
           drafts: state.drafts.filter(d => d.id !== id)
         }));
+      },
+
+      createPost: async (post) => {
+        try {
+          const { data, error } = await supabase
+            .from('posts')
+            .insert([post])
+            .select(`
+              *,
+              author:profiles(
+                id,
+                name,
+                avatar_url,
+                role
+              )
+            `)
+            .single();
+
+          if (error) {
+            console.error('Error creating post:', error);
+            throw error;
+          }
+
+          if (!data) {
+            throw new Error('No data returned from post creation');
+          }
+
+          // Update the appropriate list
+          if (data.published) {
+            set(state => ({ posts: [data, ...state.posts] }));
+          } else {
+            set(state => ({ drafts: [data, ...state.drafts] }));
+          }
+
+          return data;
+        } catch (error) {
+          console.error('Error in createPost:', error);
+          throw error;
+        }
+      },
+
+      publishPost: async (id) => {
+        try {
+          const { data, error } = await supabase
+            .from('posts')
+            .update({ published: true })
+            .eq('id', id)
+            .select(`
+              *,
+              author:profiles(
+                id,
+                name,
+                avatar_url,
+                role
+              )
+            `)
+            .single();
+
+          if (error) {
+            console.error('Error publishing post:', error);
+            throw error;
+          }
+
+          if (!data) {
+            throw new Error('No data returned from post publish');
+          }
+
+          // Move from drafts to posts
+          set(state => ({
+            posts: [data, ...state.posts],
+            drafts: state.drafts.filter(post => post.id !== id)
+          }));
+        } catch (error) {
+          console.error('Error in publishPost:', error);
+          throw error;
+        }
       }
     }),
     {

@@ -1,43 +1,47 @@
-import { supabase } from './supabaseClient';
+import { supabase } from './supabase';
 
-export async function uploadImage(file: File, bucket: string = 'blog-images') {
+export const uploadImage = async (file: File, bucket: string): Promise<string> => {
   try {
-    // Generate a unique filename to avoid collisions
+    // Generate a unique file name
     const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random().toString(36).substring(2)}${Date.now()}.${fileExt}`;
-    const filePath = fileName;
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `${fileName}`;
 
-    // Check file size (max 50MB for free tier)
-    if (file.size > 50 * 1024 * 1024) {
-      throw new Error('File size must be less than 50MB');
-    }
+    console.log('Uploading file:', { bucket, filePath, type: file.type });
 
-    // Upload the file to Supabase storage
-    const { data, error } = await supabase.storage
+    // Upload the file
+    const { data: uploadData, error: uploadError } = await supabase.storage
       .from(bucket)
       .upload(filePath, file, {
         cacheControl: '3600',
-        upsert: true, // Allow overwriting existing files
+        upsert: true,
         contentType: file.type
       });
 
-    if (error) {
-      console.error('Upload error:', error);
-      throw error;
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      throw new Error(`Failed to upload image: ${uploadError.message}`);
     }
 
-    // Get the public URL directly
-    const { data: publicUrlData } = supabase.storage
+    if (!uploadData) {
+      throw new Error('No upload data returned');
+    }
+
+    console.log('Upload successful:', uploadData);
+
+    // Get the public URL
+    const { data } = supabase.storage
       .from(bucket)
       .getPublicUrl(filePath);
 
-    if (!publicUrlData?.publicUrl) {
-      throw new Error('Failed to generate public URL');
+    if (!data.publicUrl) {
+      throw new Error('Failed to get image URL');
     }
 
-    return publicUrlData.publicUrl;
+    console.log('Got public URL:', data.publicUrl);
+    return data.publicUrl;
   } catch (error) {
-    console.error('Error uploading image:', error);
-    throw new Error(error instanceof Error ? error.message : 'Failed to upload image');
+    console.error('Image upload failed:', error);
+    throw error;
   }
-} 
+}; 

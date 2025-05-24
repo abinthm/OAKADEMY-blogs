@@ -1,20 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Calendar, User, Edit, Trash2 } from 'lucide-react';
+import { Calendar, User, Edit, Trash2, Clock } from 'lucide-react';
 import { BlogPost } from '../../types';
 import { useAuthStore } from '../../store/authStore';
 import { useBlogStore } from '../../store/blogStore';
+import { supabase } from '../../lib/supabase';
 
 interface BlogCardProps {
   post: BlogPost;
-  authorName: string;
 }
 
-const BlogCard: React.FC<BlogCardProps> = ({ post, authorName }) => {
+const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { deletePost } = useBlogStore();
-  
+  const [authorAvatar, setAuthorAvatar] = useState<string | null>(null);
+  const [authorRole, setAuthorRole] = useState<string | null>(null);
+  const [authorName, setAuthorName] = useState<string | null>(null);
+  const [avatarError, setAvatarError] = useState(false);
+
   const formattedDate = post.created_at ? new Date(post.created_at).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -25,6 +29,33 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, authorName }) => {
   const isAdmin = user?.isAdmin;
   const canEdit = isAuthor || isAdmin;
   const canDelete = isAuthor || isAdmin;
+
+  useEffect(() => {
+    const fetchAuthorInfo = async () => {
+      try {
+        const { data: authorData, error } = await supabase
+          .from('profiles')
+          .select('name, avatar_url, role')
+          .eq('id', post.author_id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching author info:', error);
+          return;
+        }
+
+        if (authorData) {
+          setAuthorName(authorData.name);
+          setAuthorAvatar(authorData.avatar_url);
+          setAuthorRole(authorData.role);
+        }
+      } catch (error) {
+        console.error('Error in fetchAuthorInfo:', error);
+      }
+    };
+
+    fetchAuthorInfo();
+  }, [post.author_id]);
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent Link navigation
@@ -88,7 +119,9 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, authorName }) => {
         
         <div className="p-6">
           <h2 className="font-serif text-xl font-bold text-gray-900 mb-2 line-clamp-2 hover:text-[#3B3D87] transition-colors">
-            {post.title}
+            <Link to={`/post/${post.id}`} className="text-gray-900 hover:text-[#3B3D87]">
+              {post.title}
+            </Link>
           </h2>
           
           <p className="text-gray-600 text-sm mb-4 line-clamp-3">
@@ -97,12 +130,31 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, authorName }) => {
           
           <div className="flex items-center justify-between text-xs text-gray-500">
             <div className="flex items-center">
-              <User size={14} className="mr-1" />
-              <span>{authorName}</span>
+              <Link to={`/profile/${post.author_id}`} className="flex items-center">
+                {authorAvatar && !avatarError ? (
+                  <img
+                    src={authorAvatar}
+                    alt={authorName || ''}
+                    className="h-10 w-10 rounded-full object-cover"
+                    onError={() => setAvatarError(true)}
+                  />
+                ) : (
+                  <div className="h-10 w-10 rounded-full bg-[#3B3D87] bg-opacity-20 flex items-center justify-center">
+                    <span className="text-[#3B3D87] font-medium">
+                      {(authorName || '').charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-gray-900">{authorName}</p>
+                  <p className="text-sm text-[#3B3D87]">{authorRole}</p>
+                </div>
+              </Link>
             </div>
             
             <div className="flex items-center">
-              <Calendar size={14} className="mr-1" />
+              <Clock className="h-4 w-4 mr-1" />
               <span>{formattedDate}</span>
             </div>
           </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Table as Tabs, Clock, Edit, FileText, Upload } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useBlogStore } from '../store/blogStore';
+import { User } from '../types';
 import BlogCard from '../components/blog/BlogCard';
 import { Link } from 'react-router-dom';
 import { uploadImage } from '../lib/uploadImage';
@@ -19,6 +20,7 @@ const ProfilePage: React.FC = () => {
   const [name, setName] = useState(user?.name || '');
   const [bio, setBio] = useState(user?.bio || '');
   const [avatar, setAvatar] = useState(user?.avatar || '');
+  const [role, setRole] = useState(user?.role || 'Community Contributor');
   
   if (!user) {
     return (
@@ -40,17 +42,26 @@ const ProfilePage: React.FC = () => {
 
     try {
       const imageUrl = await uploadImage(file, 'avatars');
+      console.log('Image uploaded successfully:', imageUrl);
+      
+      // Update profile with new avatar
+      const updates: Partial<User> = {
+        name: name.trim(),
+        bio: bio?.trim(),
+        avatar: imageUrl,
+        role: role.trim() || 'Community Contributor'
+      };
+
+      const updatedUser = await updateProfile(updates);
+      console.log('Profile updated with new avatar:', updatedUser);
+
+      // Update local state
       setAvatar(imageUrl);
-      await updateProfile({
-        name,
-        bio,
-        avatar: imageUrl
-      });
       setAvatarError(false);
       setEditAvatarError(false);
     } catch (err) {
-      setError((err as Error).message);
       console.error('Failed to upload image:', err);
+      setError((err as Error).message);
     } finally {
       setIsUploading(false);
     }
@@ -59,13 +70,29 @@ const ProfilePage: React.FC = () => {
   const handleSaveProfile = async () => {
     setError(null);
     try {
-      await updateProfile({
-        name,
-        bio,
-        avatar
-      });
+      console.log('Attempting to save profile with role:', role);
+
+      // Create update object with all fields
+      const updates: Partial<User> = {
+        name: name.trim(),
+        bio: bio?.trim(),
+        avatar: avatar || user.avatar, // Preserve existing avatar
+        role: role.trim() || user.role || 'Community Contributor' // Preserve existing role if not changed
+      };
+
+      console.log('Sending profile updates:', updates);
+      const updatedUser = await updateProfile(updates);
+      console.log('Profile updated successfully:', updatedUser);
+
+      // Update local state with the returned user data
+      setName(updatedUser.name);
+      setBio(updatedUser.bio || '');
+      setAvatar(updatedUser.avatar || '');
+      setRole(updatedUser.role || 'Community Contributor');
+      
       setIsEditing(false);
     } catch (err) {
+      console.error('Failed to update profile:', err);
       setError((err as Error).message);
     }
   };
@@ -74,32 +101,39 @@ const ProfilePage: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       {error && (
         <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">
-          {error}
+          <p className="font-medium">Error updating profile</p>
+          <p className="text-sm">{error}</p>
         </div>
       )}
       
-      <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
-        <div className="relative h-40 bg-[#3B3D87]">
+      <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8 relative">
+        <div className="h-40 bg-[#3B3D87]">
           {isEditing ? (
-            <div className="absolute bottom-4 right-4 flex gap-2">
+            <div className="absolute bottom-4 right-4 flex gap-2 z-10">
               <button
-                onClick={() => setIsEditing(false)}
-                className="px-4 py-2 bg-white text-gray-600 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                onClick={() => {
+                  setName(user.name);
+                  setBio(user.bio || '');
+                  setAvatar(user.avatar || '');
+                  setRole(user.role || '');
+                  setIsEditing(false);
+                }}
+                className="px-4 py-2 bg-white text-gray-600 rounded-md shadow-sm hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveProfile}
-                className="px-4 py-2 bg-white text-[#3B3D87] rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B3D87]"
+                className="px-4 py-2 bg-white text-[#3B3D87] rounded-md shadow-sm hover:bg-gray-50"
               >
                 Save Profile
               </button>
             </div>
           ) : (
-            <div className="absolute bottom-4 right-4">
+            <div className="absolute bottom-4 right-4 z-10">
               <button
                 onClick={() => setIsEditing(true)}
-                className="flex items-center px-4 py-2 bg-white text-[#3B3D87] rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B3D87]"
+                className="flex items-center px-4 py-2 bg-white text-[#3B3D87] rounded-md shadow-sm hover:bg-gray-50"
               >
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Profile
@@ -109,10 +143,10 @@ const ProfilePage: React.FC = () => {
         </div>
         
         <div className="relative px-6 py-6">
-          <div className="absolute -top-12 left-6">
-            {isEditing ? (
-              <div className="relative">
-                <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-white bg-white shadow-md">
+          <div className="absolute -top-12 left-6 z-20">
+            <div className="relative h-24 w-24 rounded-full overflow-hidden border-4 border-white bg-white shadow-md">
+              {isEditing ? (
+                <>
                   {avatar && !editAvatarError ? (
                     <img
                       src={avatar}
@@ -127,43 +161,41 @@ const ProfilePage: React.FC = () => {
                       </span>
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                    <label className="cursor-pointer">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageUpload}
-                        disabled={isUploading}
-                      />
-                      <Upload className="h-6 w-6 text-white" />
-                    </label>
-                  </div>
-                </div>
-                {isUploading && (
-                  <div className="mt-2 text-sm text-[#3B3D87]">
-                    Uploading...
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-white bg-white shadow-md">
-                {user.avatar && !avatarError ? (
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="h-full w-full object-cover"
-                    onError={() => setAvatarError(true)}
-                  />
-                ) : (
-                  <div className="h-full w-full bg-[#3B3D87] bg-opacity-20 flex items-center justify-center">
-                    <span className="text-[#3B3D87] font-bold text-3xl">
-                      {user.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
+                  <label className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                      disabled={isUploading}
+                    />
+                    <Upload className="h-6 w-6 text-white" />
+                  </label>
+                  {isUploading && (
+                    <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+                      <div className="text-white text-sm">Uploading...</div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  {user.avatar && !avatarError ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="h-full w-full object-cover"
+                      onError={() => setAvatarError(true)}
+                    />
+                  ) : (
+                    <div className="h-full w-full bg-[#3B3D87] bg-opacity-20 flex items-center justify-center">
+                      <span className="text-[#3B3D87] font-bold text-3xl">
+                        {user.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
           
           <div className="ml-32 pt-2">
@@ -180,6 +212,19 @@ const ProfilePage: React.FC = () => {
                     onChange={(e) => setName(e.target.value)}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#3B3D87] focus:border-[#3B3D87]"
                     required
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                    Role
+                  </label>
+                  <input
+                    type="text"
+                    id="role"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#3B3D87] focus:border-[#3B3D87]"
                   />
                 </div>
                 
@@ -201,6 +246,7 @@ const ProfilePage: React.FC = () => {
               <>
                 <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
                 <p className="text-gray-500 text-sm mt-1">{user.email}</p>
+                <p className="text-[#3B3D87] text-sm mt-1">{user.role}</p>
                 {user.bio && <p className="text-gray-700 mt-4 text-sm">{user.bio}</p>}
               </>
             )}

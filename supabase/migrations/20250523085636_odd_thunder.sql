@@ -7,6 +7,7 @@
       - `name` (text)
       - `avatar_url` (text)
       - `bio` (text)
+      - `role` (text)
       - `created_at` (timestamp)
       - `updated_at` (timestamp)
     
@@ -38,6 +39,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   name text NOT NULL,
   avatar_url text,
   bio text,
+  role text DEFAULT 'Community Contributor',
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );

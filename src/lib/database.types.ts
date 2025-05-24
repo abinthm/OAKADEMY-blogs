@@ -17,6 +17,7 @@ export interface Database {
           name: string
           avatar_url: string | null
           bio: string | null
+          role: string | null
           created_at: string
           updated_at: string
           is_admin: boolean
@@ -26,6 +27,7 @@ export interface Database {
           name: string
           avatar_url?: string | null
           bio?: string | null
+          role?: string | null
           created_at?: string
           updated_at?: string
           is_admin?: boolean
@@ -35,6 +37,7 @@ export interface Database {
           name?: string
           avatar_url?: string | null
           bio?: string | null
+          role?: string | null
           created_at?: string
           updated_at?: string
           is_admin?: boolean

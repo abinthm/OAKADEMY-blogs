@@ -17,21 +17,21 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-white shadow-xl w-full">
-      <div className="max-w-full mx-auto px-8 sm:px-12 lg:px-16">
-        <div className="flex justify-between h-20">
+    <nav className="bg-white shadow-sm">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0">
-              <img src={logo} alt="Logo" className="h-16 w-auto" />
+              <img src={logo} alt="Logo" className="h-14 w-auto" />
             </Link>
           </div>
           
           <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center h-20">
             <Link to="/" className="flex-shrink-0">
-              <span className="text-[#3B3D87] font-serif text-xl font-bold whitespace-nowrap tracking-wide">Voices of Oak</span>
+              <span className="text-[#3B3D87] font-serif text-sm md:text-xl font-bold whitespace-nowrap tracking-wide">Voices of Oak</span>
             </Link>
           </div>
-          
+
           <div className="hidden md:flex md:items-center md:space-x-4">
             <Link to="/" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-[#3B3D87] transition-colors">
               Home
@@ -80,11 +80,17 @@ const Navbar: React.FC = () => {
                   </div>
                   
                   {isMenuOpen && (
-                    <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100">
-                      <div className="py-1">
+                    <div 
+                      className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
+                      role="menu"
+                      aria-orientation="vertical"
+                      aria-labelledby="user-menu-button"
+                    >
+                      <div className="py-1" role="none">
                         <Link
                           to="/profile"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          role="menuitem"
                           onClick={() => setIsMenuOpen(false)}
                         >
                           <div className="flex items-center">
@@ -95,6 +101,7 @@ const Navbar: React.FC = () => {
                         <Link
                           to="/write"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          role="menuitem"
                           onClick={() => setIsMenuOpen(false)}
                         >
                           <div className="flex items-center">
@@ -106,6 +113,7 @@ const Navbar: React.FC = () => {
                           <Link
                             to="/admin"
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            role="menuitem"
                             onClick={() => setIsMenuOpen(false)}
                           >
                             <div className="flex items-center">
@@ -117,8 +125,12 @@ const Navbar: React.FC = () => {
                       </div>
                       <div className="py-1">
                         <button
-                          onClick={handleLogout}
+                          onClick={() => {
+                            handleLogout();
+                            setIsMenuOpen(false);
+                          }}
                           className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          role="menuitem"
                         >
                           <div className="flex items-center">
                             <LogOut className="mr-2 h-4 w-4" />
@@ -202,7 +214,10 @@ const Navbar: React.FC = () => {
                   </Link>
                 )}
                 <button
-                  onClick={handleLogout}
+                  onClick={() => {
+                    handleLogout();
+                    setIsMenuOpen(false);
+                  }}
                   className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#3B3D87] hover:bg-gray-50"
                 >
                   Sign out

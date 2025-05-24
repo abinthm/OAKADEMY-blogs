@@ -9,7 +9,7 @@ interface AuthState {
   login: (email: string, password: string) => Promise<User>;
   register: (name: string, email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
-  updateProfile: (userData: Partial<User>) => Promise<void>;
+  updateProfile: (userData: Partial<User>) => Promise<User>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -80,6 +80,7 @@ export const useAuthStore = create<AuthState>()(
           name: userProfile.name,
           bio: userProfile.bio || undefined,
           avatar: userProfile.avatar_url || undefined,
+          role: userProfile.role || 'Community Contributor',
           createdAt: new Date(userProfile.created_at),
           isAdmin: userProfile.is_admin || false,
         };
@@ -135,6 +136,7 @@ export const useAuthStore = create<AuthState>()(
           id: authData.user.id,
           email: authData.user.email!,
           name,
+          role: 'Community Contributor',
           createdAt: new Date(profileData.created_at),
           isAdmin: false,
         };
@@ -152,34 +154,80 @@ export const useAuthStore = create<AuthState>()(
         set({ user: null, isAuthenticated: false });
       },
       
-      updateProfile: async (userData) => {
-        const { user: currentUser } = useAuthStore.getState();
+      updateProfile: async (userData: Partial<User>): Promise<User> => {
+        const { user: currentUser } = get();
         
         if (!currentUser) {
           throw new Error('No user logged in');
         }
 
-        // Convert avatar to avatar_url for database
-        const dbData = {
-          ...userData,
-          avatar_url: userData.avatar,
-        };
-        delete dbData.avatar;
+        console.log('Starting profile update with:', userData);
 
-        const { error } = await supabase
-          .from('profiles')
-          .update(dbData)
-          .eq('id', currentUser.id);
+        try {
+          // First, get the current profile from the database
+          const { data: currentProfile, error: fetchError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', currentUser.id)
+            .single();
 
-        if (error) {
-          console.error('Profile update error:', error);
-          throw new Error('Failed to update profile');
+          if (fetchError) {
+            console.error('Error fetching current profile:', fetchError);
+            throw new Error('Failed to fetch current profile');
+          }
+
+          console.log('Current profile in DB:', currentProfile);
+
+          // Prepare update data - explicitly handle each field
+          const updateData = {
+            name: userData.name ?? currentProfile.name,
+            bio: userData.bio ?? currentProfile.bio,
+            avatar_url: userData.avatar ?? currentProfile.avatar_url,
+            role: userData.role ?? currentProfile.role,
+            updated_at: new Date().toISOString()
+          };
+
+          console.log('Updating profile with:', updateData);
+
+          // Update the profile
+          const { data: updatedProfile, error: updateError } = await supabase
+            .from('profiles')
+            .update(updateData)
+            .eq('id', currentUser.id)
+            .select()
+            .single();
+
+          if (updateError) {
+            console.error('Error updating profile:', updateError);
+            throw new Error('Failed to update profile: ' + updateError.message);
+          }
+
+          if (!updatedProfile) {
+            throw new Error('No profile data returned after update');
+          }
+
+          console.log('Profile updated in DB:', updatedProfile);
+
+          // Update the frontend state
+          const newUserState: User = {
+            id: currentUser.id,
+            email: currentUser.email,
+            name: updatedProfile.name,
+            bio: updatedProfile.bio || undefined,
+            avatar: updatedProfile.avatar_url || undefined,
+            role: updatedProfile.role,
+            isAdmin: updatedProfile.is_admin || false,
+            createdAt: new Date(updatedProfile.created_at)
+          };
+
+          console.log('Setting new user state:', newUserState);
+          set({ user: newUserState });
+
+          return newUserState;
+        } catch (error) {
+          console.error('Profile update failed:', error);
+          throw error;
         }
-
-        // Keep avatar in the frontend state
-        set((state) => ({
-          user: state.user ? { ...state.user, ...userData } : null
-        }));
       },
     }),
     {
