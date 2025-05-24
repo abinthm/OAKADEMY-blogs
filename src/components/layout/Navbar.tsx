@@ -6,6 +6,7 @@ import logo from '../../assets/Frame 1.svg';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
@@ -21,7 +22,7 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between h-20">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0">
-              <img src={logo} alt="Logo" className="h-12 w-auto" />
+              <img src={logo} alt="Logo" className="h-16 w-auto" />
             </Link>
           </div>
           
@@ -61,11 +62,12 @@ const Navbar: React.FC = () => {
                       className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B3D87]"
                       onClick={() => setIsMenuOpen(!isMenuOpen)}
                     >
-                      {user.avatar ? (
+                      {user.avatar && !avatarError ? (
                         <img
-                          className="h-8 w-8 rounded-full"
+                          className="h-8 w-8 rounded-full object-cover"
                           src={user.avatar}
                           alt={user.name}
+                          onError={() => setAvatarError(true)}
                         />
                       ) : (
                         <div className="h-8 w-8 rounded-full bg-[#3B3D87] bg-opacity-20 flex items-center justify-center">

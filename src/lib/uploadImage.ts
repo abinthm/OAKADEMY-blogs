@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from './supabaseClient';
 
 export async function uploadImage(file: File, bucket: string = 'blog-images') {
   try {
@@ -17,7 +17,7 @@ export async function uploadImage(file: File, bucket: string = 'blog-images') {
       .from(bucket)
       .upload(filePath, file, {
         cacheControl: '3600',
-        upsert: false,
+        upsert: true, // Allow overwriting existing files
         contentType: file.type
       });
 
@@ -26,22 +26,16 @@ export async function uploadImage(file: File, bucket: string = 'blog-images') {
       throw error;
     }
 
-    // Get the public URL for the uploaded file
-    const { data: urlData } = await supabase.storage
+    // Get the public URL directly
+    const { data: publicUrlData } = supabase.storage
       .from(bucket)
-      .createSignedUrl(filePath, 31536000); // URL valid for 1 year
+      .getPublicUrl(filePath);
 
-    if (!urlData?.signedUrl) {
+    if (!publicUrlData?.publicUrl) {
       throw new Error('Failed to generate public URL');
     }
 
-    // Convert signed URL to public URL by removing the token
-    const publicUrl = urlData.signedUrl.split('?')[0];
-
-    // Log the URL for debugging
-    console.log('Generated public URL:', publicUrl);
-
-    return publicUrl;
+    return publicUrlData.publicUrl;
   } catch (error) {
     console.error('Error uploading image:', error);
     throw new Error(error instanceof Error ? error.message : 'Failed to upload image');
