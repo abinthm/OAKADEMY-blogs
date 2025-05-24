@@ -24,6 +24,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, authorName }) => {
   const isAuthor = user?.id === post.author_id;
   const isAdmin = user?.isAdmin;
   const canEdit = isAuthor || isAdmin;
+  const canDelete = isAuthor || isAdmin;
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent Link navigation
@@ -72,12 +73,14 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, authorName }) => {
                 >
                   <Edit size={14} />
                 </button>
-                <button
-                  onClick={handleDelete}
-                  className="p-1.5 bg-white text-red-600 rounded-full hover:bg-red-50 transition-colors shadow-sm"
-                >
-                  <Trash2 size={14} />
-                </button>
+                {canDelete && (
+                  <button
+                    onClick={handleDelete}
+                    className="p-1.5 bg-white text-red-600 rounded-full hover:bg-red-50 transition-colors shadow-sm"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
               </div>
             )}
           </div>

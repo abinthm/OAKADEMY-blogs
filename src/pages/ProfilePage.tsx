@@ -70,7 +70,7 @@ const ProfilePage: React.FC = () => {
       )}
       
       <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
-        <div className="relative h-48 bg-gradient-to-r from-[#3B3D87] to-[#2d2f66]">
+        <div className="relative h-40 bg-[#3B3D87]">
           {isEditing ? (
             <div className="absolute bottom-4 right-4 flex gap-2">
               <button
@@ -99,11 +99,11 @@ const ProfilePage: React.FC = () => {
           )}
         </div>
         
-        <div className="relative px-6 py-8">
-          <div className="absolute -top-16 left-6">
+        <div className="relative px-6 py-6">
+          <div className="absolute -top-12 left-6">
             {isEditing ? (
               <div className="relative">
-                <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white bg-white">
+                <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-white bg-white shadow-md">
                   <img
                     src={avatar || 'https://via.placeholder.com/200?text=Upload+Avatar'}
                     alt={name}
@@ -118,7 +118,7 @@ const ProfilePage: React.FC = () => {
                         onChange={handleImageUpload}
                         disabled={isUploading}
                       />
-                      <Upload className="h-8 w-8 text-white" />
+                      <Upload className="h-6 w-6 text-white" />
                     </label>
                   </div>
                 </div>
@@ -129,7 +129,7 @@ const ProfilePage: React.FC = () => {
                 )}
               </div>
             ) : (
-              <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white bg-white">
+              <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-white bg-white shadow-md">
                 {user.avatar ? (
                   <img
                     src={user.avatar}
@@ -137,8 +137,8 @@ const ProfilePage: React.FC = () => {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="h-full w-full flex items-center justify-center bg-[#3B3D87]/20">
-                    <span className="text-4xl font-bold text-[#3B3D87]">
+                  <div className="h-full w-full flex items-center justify-center bg-[#3B3D87]/10">
+                    <span className="text-3xl font-bold text-[#3B3D87]">
                       {user.name.charAt(0).toUpperCase()}
                     </span>
                   </div>
@@ -147,7 +147,7 @@ const ProfilePage: React.FC = () => {
             )}
           </div>
           
-          <div className="ml-40">
+          <div className="ml-32 pt-2">
             {isEditing ? (
               <div className="space-y-4">
                 <div>
@@ -181,20 +181,20 @@ const ProfilePage: React.FC = () => {
             ) : (
               <>
                 <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
-                <p className="text-gray-600 mt-1">{user.email}</p>
-                {user.bio && <p className="text-gray-700 mt-4">{user.bio}</p>}
+                <p className="text-gray-500 text-sm mt-1">{user.email}</p>
+                {user.bio && <p className="text-gray-700 mt-4 text-sm">{user.bio}</p>}
               </>
             )}
             
-            <div className="mt-6 flex flex-wrap items-center gap-4">
+            <div className="mt-4 flex flex-wrap items-center gap-4">
               <div className="flex items-center">
-                <FileText className="h-5 w-5 text-gray-500 mr-2" />
-                <span>{userPosts.length} published</span>
+                <FileText className="h-4 w-4 text-gray-500 mr-2" />
+                <span className="text-sm text-gray-600">{userPosts.length} published</span>
               </div>
               
               <div className="flex items-center">
-                <Clock className="h-5 w-5 text-gray-500 mr-2" />
-                <span>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
+                <Clock className="h-4 w-4 text-gray-500 mr-2" />
+                <span className="text-sm text-gray-600">Joined {new Date(user.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
           </div>

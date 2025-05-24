@@ -21,6 +21,9 @@ const BlogDetail: React.FC<BlogDetailProps> = ({ post, author }) => {
   }) : 'Date not available';
   
   const isAuthor = user?.id === post.author_id;
+  const isAdmin = user?.isAdmin;
+  const canEdit = isAuthor || isAdmin;
+  const canDelete = isAuthor || isAdmin;
   
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
@@ -160,7 +163,7 @@ const BlogDetail: React.FC<BlogDetailProps> = ({ post, author }) => {
         
         <div className="flex justify-between items-center border-t pt-6">
           <div className="flex space-x-2">
-            {isAuthor && (
+            {canEdit && (
               <>
                 <button
                   onClick={() => navigate(`/edit/${post.id}`)}
@@ -169,13 +172,15 @@ const BlogDetail: React.FC<BlogDetailProps> = ({ post, author }) => {
                   <Edit size={16} className="mr-1" />
                   Edit
                 </button>
-                <button
-                  onClick={handleDelete}
-                  className="flex items-center px-3 py-1.5 text-sm text-gray-600 hover:text-red-600 transition-colors"
-                >
-                  <Trash2 size={16} className="mr-1" />
-                  Delete
-                </button>
+                {canDelete && (
+                  <button
+                    onClick={handleDelete}
+                    className="flex items-center px-3 py-1.5 text-sm text-gray-600 hover:text-red-600 transition-colors"
+                  >
+                    <Trash2 size={16} className="mr-1" />
+                    Delete
+                  </button>
+                )}
               </>
             )}
           </div>
