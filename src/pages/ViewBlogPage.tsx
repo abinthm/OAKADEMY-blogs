@@ -37,7 +37,7 @@ const ViewBlogPage: React.FC = () => {
         <p className="text-gray-600 mb-8">The blog post you're looking for doesn't exist or has been removed.</p>
         <button
           onClick={() => navigate('/')}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-[#3B3D87] text-white rounded-md hover:bg-[#2d2f66] transition-colors"
         >
           Back to Home
         </button>
@@ -56,7 +56,7 @@ const ViewBlogPage: React.FC = () => {
         <p className="text-gray-600 mb-8">This post is currently under review and not publicly available.</p>
         <button
           onClick={() => navigate('/')}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-[#3B3D87] text-white rounded-md hover:bg-[#2d2f66] transition-colors"
         >
           Back to Home
         </button>

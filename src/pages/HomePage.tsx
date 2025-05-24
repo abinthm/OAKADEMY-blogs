@@ -1,10 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ChevronRight } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useBlogStore } from '../store/blogStore';
 import { useAuthStore } from '../store/authStore';
 import BlogCard from '../components/blog/BlogCard';
 import { Category, BlogPost } from '../types';
+
+// Shortened category names for tabs
+const categoryTabs = {
+  'All': 'All',
+  'Latest Roots': 'Latest',
+  'Culture & Identity': 'Culture',
+  'Education & Opportunity': 'Education',
+  'Gender & Expression': 'Gender',
+  'Climate & Planet': 'Climate',
+  'Health & Hope': 'Health',
+  'Governance & Voice': 'Governance',
+  'Justice & Rights': 'Justice',
+  'Civic Spark': 'Civic Rights'
+} as const;
 
 const categories: Category[] = [
   'Latest Roots',
@@ -59,69 +73,73 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col items-center justify-center max-w-4xl mx-auto mb-16">
-        <h1 className="text-4xl md:text-6xl font-bold text-black font-serif mb-6 whitespace-nowrap">
+      <div className="flex flex-col items-center justify-center max-w-4xl mx-auto mb-16 px-4">
+        <h1 className="text-[1.5rem] sm:text-[2rem] md:text-[2.5rem] lg:text-[3.5rem] font-bold text-black font-serif mb-6 text-center whitespace-nowrap">
           Your Thought. Your Story. Our Future.
         </h1>
-        <p className="text-2xl font-semibold text-black mb-4 whitespace-nowrap">
+        <p className="text-xl md:text-2xl font-semibold text-black mb-4 text-center">
           Welcome to Voices of Oak
         </p>
-        <p className="text-xl text-black mb-4 whitespace-nowrap">
+        <p className="text-lg md:text-xl text-black mb-4 text-center">
           The Official Blog & Storytelling Platform of Oakademy
         </p>
-        <p className="text-lg text-gray-700 mb-8 max-w-3xl text-center">
+        <p className="text-base md:text-lg text-gray-700 mb-8 max-w-3xl text-center px-4">
           A global movement by youth, for youth—where reflections, real stories, and bold ideas spark change, from personal journeys to unheard voices around the world.
         </p>
           
         <Link
           to="/write"
-          className="inline-flex items-center px-8 py-4 text-lg font-medium rounded-full text-white bg-[#3B3D87] hover:bg-[#2d2f66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B3D87] transition-colors"
+          className="inline-flex items-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium rounded-full text-white bg-[#3B3D87] hover:bg-[#2d2f66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B3D87] transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
         >
           Start Writing - Your Voice Matters
         </Link>
       </div>
-      
-      <div className="mb-8">
-        <div className="flex flex-wrap gap-4 mb-6">
-          <button
-            onClick={() => setActiveCategory('All')}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeCategory === 'All'
-                ? 'bg-[#3B3D87] text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            All
-          </button>
-          {categories.map((cat) => (
+
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6 px-4">Top Voices This Month</h2>
+        
+        <div className="border-b border-gray-200 mb-6">
+          <nav className="flex space-x-4 md:space-x-8 overflow-x-auto pb-2 px-4" aria-label="Categories">
             <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                activeCategory === cat
-                  ? 'bg-[#3B3D87] text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              onClick={() => setActiveCategory('All')}
+              className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm ${
+                activeCategory === 'All'
+                  ? 'border-[#3B3D87] text-[#3B3D87]'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              {cat}
+              {categoryTabs['All']}
             </button>
-          ))}
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm ${
+                  activeCategory === cat
+                    ? 'border-[#3B3D87] text-[#3B3D87]'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {categoryTabs[cat as keyof typeof categoryTabs]}
+              </button>
+            ))}
+          </nav>
         </div>
 
-        <div className="relative">
+        <div className="relative mb-8 px-4">
           <input
             type="text"
             placeholder="Search stories..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3B3D87] focus:border-transparent"
           />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <Search className="absolute left-7 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
         </div>
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-4">
           {[1, 2, 3, 4, 5, 6].map((n) => (
             <div key={n} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
               <div className="h-48 bg-gray-200" />
@@ -134,7 +152,7 @@ const HomePage: React.FC = () => {
           ))}
         </div>
       ) : filteredPosts.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="text-center py-12 px-4">
           <p className="text-gray-500 text-lg">
             {searchTerm
               ? `No stories found for "${searchTerm}"`
@@ -150,7 +168,7 @@ const HomePage: React.FC = () => {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-4">
           {filteredPosts.map((post) => (
             <BlogCard
               key={post.id}

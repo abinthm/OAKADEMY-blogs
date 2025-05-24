@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <Link to="/" className="text-blue-600 font-serif text-2xl font-bold">Voices of Oak</Link>
+            <Link to="/" className="text-[#3B3D87] font-serif text-2xl font-bold">Voices of Oak</Link>
             <p className="mt-2 text-sm text-gray-500">
               A platform for sharing your thoughts, ideas, and stories with the world.
               Join our community of writers and readers today.

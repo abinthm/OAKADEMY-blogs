@@ -123,7 +123,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <button
                       onClick={() => navigate(`/post/${post.id}`)}
-                      className="text-blue-600 hover:text-blue-800"
+                      className="text-[#3B3D87] hover:text-[#2d2f66]"
                       title="View Post"
                     >
                       <Eye size={20} />
@@ -138,7 +138,7 @@ const AdminDashboard: React.FC = () => {
                         value={reviewNotes}
                         onChange={(e) => setReviewNotes(e.target.value)}
                         placeholder="Add review notes..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#3B3D87] focus:border-[#3B3D87]"
                         rows={3}
                       />
                       <div className="flex justify-end space-x-3">
@@ -164,7 +164,7 @@ const AdminDashboard: React.FC = () => {
                     <div className="flex justify-end space-x-3">
                       <button
                         onClick={() => setSelectedPost(post)}
-                        className="flex items-center px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                        className="flex items-center px-4 py-2 text-white bg-[#3B3D87] rounded-md hover:bg-[#2d2f66]"
                       >
                         Review
                       </button>

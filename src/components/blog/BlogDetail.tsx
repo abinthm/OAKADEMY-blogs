@@ -22,10 +22,15 @@ const BlogDetail: React.FC<BlogDetailProps> = ({ post, author }) => {
   
   const isAuthor = user?.id === post.author_id;
   
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
-      deletePost(post.id);
-      navigate('/');
+      try {
+        await deletePost(post.id);
+        navigate('/');
+      } catch (error) {
+        console.error('Error deleting post:', error);
+        alert('Failed to delete post. Please try again.');
+      }
     }
   };
   
@@ -67,7 +72,7 @@ const BlogDetail: React.FC<BlogDetailProps> = ({ post, author }) => {
             <div className="flex items-center space-x-2 text-white text-sm mb-2">
               <Link
                 to={`/category/${post.category.toLowerCase()}`}
-                className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium"
+                className="bg-[#3B3D87] text-white px-3 py-1 rounded-full text-xs font-medium"
               >
                 {post.category}
               </Link>
@@ -87,7 +92,7 @@ const BlogDetail: React.FC<BlogDetailProps> = ({ post, author }) => {
           <div className="flex items-center space-x-2 text-gray-500 text-sm mb-2">
             <Link
               to={`/category/${post.category.toLowerCase()}`}
-              className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium"
+              className="bg-[#3B3D87]/10 text-[#3B3D87] px-3 py-1 rounded-full text-xs font-medium"
             >
               {post.category}
             </Link>
@@ -118,8 +123,8 @@ const BlogDetail: React.FC<BlogDetailProps> = ({ post, author }) => {
                 }}
               />
             ) : (
-              <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center">
-                <span className="text-blue-800 font-medium">
+              <div className="h-10 w-10 rounded-full bg-[#3B3D87]/20 flex items-center justify-center">
+                <span className="text-[#3B3D87] font-medium">
                   {author.name.charAt(0).toUpperCase()}
                 </span>
               </div>
@@ -134,7 +139,7 @@ const BlogDetail: React.FC<BlogDetailProps> = ({ post, author }) => {
         </div>
         
         <div 
-          className="prose prose-blue max-w-none mb-8"
+          className="prose prose-[#3B3D87] max-w-none mb-8"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
         
@@ -159,7 +164,7 @@ const BlogDetail: React.FC<BlogDetailProps> = ({ post, author }) => {
               <>
                 <button
                   onClick={() => navigate(`/edit/${post.id}`)}
-                  className="flex items-center px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                  className="flex items-center px-3 py-1.5 text-sm text-gray-600 hover:text-[#3B3D87] transition-colors"
                 >
                   <Edit size={16} className="mr-1" />
                   Edit
@@ -177,7 +182,7 @@ const BlogDetail: React.FC<BlogDetailProps> = ({ post, author }) => {
           
           <button
             onClick={handleShare}
-            className="flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-md text-sm hover:bg-blue-200 transition-colors"
+            className="flex items-center px-4 py-2 bg-[#3B3D87]/10 text-[#3B3D87] rounded-md text-sm hover:bg-[#3B3D87]/20 transition-colors"
           >
             <Share2 size={16} className="mr-2" />
             Share

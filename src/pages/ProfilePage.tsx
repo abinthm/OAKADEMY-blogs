@@ -26,8 +26,8 @@ const ProfilePage: React.FC = () => {
     );
   }
   
-  const userPosts = posts.filter(post => post.authorId === user.id && post.published);
-  const userDrafts = drafts.filter(draft => draft.authorId === user.id);
+  const userPosts = posts.filter(post => post.author_id === user.id && post.published);
+  const userDrafts = drafts.filter(draft => draft.author_id === user.id);
   
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -70,7 +70,7 @@ const ProfilePage: React.FC = () => {
       )}
       
       <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
-        <div className="relative h-48 bg-gradient-to-r from-blue-600 to-indigo-600">
+        <div className="relative h-48 bg-gradient-to-r from-[#3B3D87] to-[#2d2f66]">
           {isEditing ? (
             <div className="absolute bottom-4 right-4 flex gap-2">
               <button
@@ -81,7 +81,7 @@ const ProfilePage: React.FC = () => {
               </button>
               <button
                 onClick={handleSaveProfile}
-                className="px-4 py-2 bg-white text-blue-600 rounded-md shadow-sm hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="px-4 py-2 bg-white text-[#3B3D87] rounded-md shadow-sm hover:bg-[#3B3D87]/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B3D87]"
               >
                 Save Profile
               </button>
@@ -90,7 +90,7 @@ const ProfilePage: React.FC = () => {
             <div className="absolute bottom-4 right-4">
               <button
                 onClick={() => setIsEditing(true)}
-                className="flex items-center px-4 py-2 bg-white text-blue-600 rounded-md shadow-sm hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="flex items-center px-4 py-2 bg-white text-[#3B3D87] rounded-md shadow-sm hover:bg-[#3B3D87]/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B3D87]"
               >
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Profile
@@ -123,7 +123,7 @@ const ProfilePage: React.FC = () => {
                   </div>
                 </div>
                 {isUploading && (
-                  <div className="mt-2 text-sm text-blue-600">
+                  <div className="mt-2 text-sm text-[#3B3D87]">
                     Uploading...
                   </div>
                 )}
@@ -137,8 +137,8 @@ const ProfilePage: React.FC = () => {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="h-full w-full flex items-center justify-center bg-blue-200">
-                    <span className="text-4xl font-bold text-blue-800">
+                  <div className="h-full w-full flex items-center justify-center bg-[#3B3D87]/20">
+                    <span className="text-4xl font-bold text-[#3B3D87]">
                       {user.name.charAt(0).toUpperCase()}
                     </span>
                   </div>
@@ -159,7 +159,7 @@ const ProfilePage: React.FC = () => {
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#3B3D87] focus:border-[#3B3D87]"
                     required
                   />
                 </div>
@@ -173,7 +173,7 @@ const ProfilePage: React.FC = () => {
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     rows={3}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#3B3D87] focus:border-[#3B3D87]"
                     placeholder="Tell us about yourself..."
                   />
                 </div>
@@ -208,7 +208,7 @@ const ProfilePage: React.FC = () => {
               onClick={() => setActiveTab('published')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'published'
-                  ? 'border-blue-600 text-blue-600'
+                  ? 'border-[#3B3D87] text-[#3B3D87]'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -219,7 +219,7 @@ const ProfilePage: React.FC = () => {
               onClick={() => setActiveTab('drafts')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'drafts'
-                  ? 'border-blue-600 text-blue-600'
+                  ? 'border-[#3B3D87] text-[#3B3D87]'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -236,7 +236,7 @@ const ProfilePage: React.FC = () => {
               <p className="text-gray-500 text-lg mb-4">You haven't published any posts yet.</p>
               <Link
                 to="/write"
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 bg-[#3B3D87] text-white rounded-md hover:bg-[#2d2f66] transition-colors"
               >
                 Write Your First Post
               </Link>
@@ -265,17 +265,17 @@ const ProfilePage: React.FC = () => {
                   className="bg-white shadow-sm rounded-md p-4 border border-gray-200"
                 >
                   <h3 className="text-lg font-medium text-gray-900 mb-1">
-                    <Link to={`/edit/${draft.id}`} className="hover:text-blue-600">
+                    <Link to={`/edit/${draft.id}`} className="hover:text-[#3B3D87]">
                       {draft.title || 'Untitled Draft'}
                     </Link>
                   </h3>
                   <p className="text-sm text-gray-500">
-                    Last updated: {new Date(draft.updatedAt).toLocaleDateString()}
+                    Last updated: {new Date(draft.updated_at).toLocaleDateString()}
                   </p>
                   <div className="mt-3 flex">
                     <Link
                       to={`/edit/${draft.id}`}
-                      className="text-sm text-blue-600 hover:text-blue-800 mr-4"
+                      className="text-sm text-[#3B3D87] hover:text-[#2d2f66] mr-4"
                     >
                       Edit
                     </Link>

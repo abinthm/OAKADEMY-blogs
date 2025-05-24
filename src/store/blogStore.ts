@@ -91,11 +91,33 @@ export const useBlogStore = create<BlogState>()(
         }));
       },
       
-      deletePost: (id) => {
-        set((state) => ({
-          posts: state.posts.filter((post) => post.id !== id),
-          drafts: state.drafts.filter((draft) => draft.id !== id)
-        }));
+      deletePost: async (id) => {
+        try {
+          // Delete hashtags first (due to foreign key constraint)
+          const { error: hashtagError } = await supabase
+            .from('post_hashtags')
+            .delete()
+            .eq('post_id', id);
+
+          if (hashtagError) throw hashtagError;
+
+          // Delete the post
+          const { error: postError } = await supabase
+            .from('posts')
+            .delete()
+            .eq('id', id);
+
+          if (postError) throw postError;
+
+          // Update local store after successful deletion
+          set((state) => ({
+            posts: state.posts.filter((post) => post.id !== id),
+            drafts: state.drafts.filter((draft) => draft.id !== id)
+          }));
+        } catch (error) {
+          console.error('Error deleting post:', error);
+          throw error;
+        }
       },
       
       getPostById: (id) => {
