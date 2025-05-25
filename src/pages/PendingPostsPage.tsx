@@ -125,7 +125,10 @@ const PendingPostsPage: React.FC = () => {
               <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="p-6">
                   <div className="mb-4">
-                    {getStatusBadge(post.status)}
+                    <div className="flex items-center text-red-600">
+                      <XCircle className="w-4 h-4 mr-1" />
+                      <span>Rejected</span>
+                    </div>
                     {post.rejection_reason && (
                       <div className="mt-3 p-4 bg-red-50 rounded-md">
                         <div className="flex items-start">
