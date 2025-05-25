@@ -6,6 +6,7 @@ import { useAuthStore } from '../../store/authStore';
 import { uploadImage } from '../../lib/uploadImage';
 import { Image } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
+import Notification from '../common/Notification';
 
 interface BlogEditorProps {
   postId?: string;
@@ -42,6 +43,7 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info', message: string } | null>(null);
   
   useEffect(() => {
     if (postId) {
@@ -135,8 +137,19 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
       if (postId) {
         if (isDraft && publish) {
           await publishDraft(postId);
+          setNotification({
+            type: 'success',
+            message: 'Your post has been submitted for approval. You can view its status in your pending posts.'
+          });
+          setTimeout(() => {
+            navigate('/pending-posts');
+          }, 2000);
         } else {
           await updatePost(postId, postData);
+          setNotification({
+            type: 'success',
+            message: 'Post updated successfully'
+          });
         }
       } else {
         const { data: postData, error: postError } = await supabase
@@ -197,14 +210,22 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
         // Refresh posts in the store
         await fetchPosts();
 
-        // Navigate after store is updated
         if (publish) {
-          // Show success message
-          const message = 'Your post has been submitted for approval. You can view its status in your pending posts.';
-          alert(message); // We'll replace this with a better UI later
-          navigate('/pending-posts');
+          setNotification({
+            type: 'success',
+            message: 'Your post has been submitted for approval. You can view its status in your pending posts.'
+          });
+          setTimeout(() => {
+            navigate('/pending-posts');
+          }, 2000);
         } else {
-          navigate(`/post/${postData.id}`);
+          setNotification({
+            type: 'success',
+            message: 'Draft saved successfully'
+          });
+          setTimeout(() => {
+            navigate(`/post/${postData.id}`);
+          }, 2000);
         }
         return;
       }
@@ -219,6 +240,10 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
       }
     } catch (err) {
       setError((err as Error).message || 'Failed to save post. Please try again.');
+      setNotification({
+        type: 'error',
+        message: (err as Error).message || 'Failed to save post. Please try again.'
+      });
     } finally {
       setIsPublishing(false);
       setIsSaving(false);
@@ -227,6 +252,14 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
   
   return (
     <div className="bg-white shadow-md rounded-lg p-6">
+      {notification && (
+        <Notification
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
+      
       {error && (
         <div className="mb-6 p-3 bg-red-50 text-red-700 rounded-md text-sm">
           {error}
