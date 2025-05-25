@@ -16,8 +16,12 @@ const AdminDashboard: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch posts when component mounts and after any approval/rejection
   useEffect(() => {
+    if (!user?.isAdmin) {
+      navigate('/', { replace: true });
+      return;
+    }
+
     const loadPosts = async () => {
       try {
         setIsLoading(true);
@@ -53,12 +57,36 @@ const AdminDashboard: React.FC = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [fetchPosts]);
+  }, [fetchPosts, user, navigate]);
 
   const pendingPosts = getPendingPosts();
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">Admin Dashboard</h1>
+        <div className="bg-white shadow-md rounded-lg overflow-hidden">
+          <div className="p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Loading Posts...</h2>
+            <div className="space-y-4">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="border border-gray-200 rounded-lg p-4 animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+                  <div className="h-3 bg-gray-200 rounded w-1/4 mb-4" />
+                  <div className="h-3 bg-gray-200 rounded w-full mb-2" />
+                  <div className="h-3 bg-gray-200 rounded w-2/3" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Not admin or not logged in
   if (!user?.isAdmin) {
-    navigate('/');
     return null;
   }
 
@@ -143,18 +171,7 @@ const AdminDashboard: React.FC = () => {
             Pending Posts ({pendingPosts.length})
           </h2>
 
-          {isLoading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map((n) => (
-                <div key={n} className="border border-gray-200 rounded-lg p-4 animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-                  <div className="h-3 bg-gray-200 rounded w-1/4 mb-4" />
-                  <div className="h-3 bg-gray-200 rounded w-full mb-2" />
-                  <div className="h-3 bg-gray-200 rounded w-2/3" />
-                </div>
-              ))}
-            </div>
-          ) : pendingPosts.length === 0 ? (
+          {pendingPosts.length === 0 ? (
             <p className="text-gray-600">No posts pending review.</p>
           ) : (
             <div className="space-y-4">

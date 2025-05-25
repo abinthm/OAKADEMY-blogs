@@ -57,9 +57,11 @@ export const useBlogStore = create<BlogState>()(
             ...post,
             authorName: post.author?.name || 'Community Member',
             hashtags: post.hashtags || [],
-            status: post.status || 'draft'
+            status: post.status || 'draft',
+            published: post.published || false
           })) || [];
 
+          console.log('Fetched posts:', transformedPosts);
           set({ posts: transformedPosts });
         } catch (error) {
           console.error('Error in fetchPosts:', error);
@@ -169,9 +171,9 @@ export const useBlogStore = create<BlogState>()(
 
       getPendingPosts: () => {
         const allPosts = get().posts;
-        return allPosts.filter(post => 
-          post.status === 'pending' && post.published === false
-        );
+        const pendingPosts = allPosts.filter(post => post.status === 'pending');
+        console.log('Pending posts:', pendingPosts);
+        return pendingPosts;
       },
 
       approvePost: (id, reviewNotes) => {
