@@ -76,11 +76,10 @@ const AdminDashboard: React.FC = () => {
         {
           event: '*',
           schema: 'public',
-          table: 'posts',
-          filter: 'status=eq.pending'
+          table: 'posts'
         },
-        async () => {
-          console.log('Received real-time update');
+        async (payload) => {
+          console.log('Received real-time update:', payload);
           await fetchPosts();
         }
       )
@@ -149,16 +148,18 @@ const AdminDashboard: React.FC = () => {
           review_notes: reviewNotes || 'Approved',
           updated_at: new Date().toISOString()
         })
-        .eq('id', post.id);
+        .eq('id', post.id)
+        .select()
+        .single();
 
       if (error) throw error;
 
-      approvePost(post.id, reviewNotes);
-      setSelectedPost(null);
-      setReviewNotes('');
       // Refresh posts after approval
       await fetchPosts();
+      setSelectedPost(null);
+      setReviewNotes('');
     } catch (err) {
+      console.error('Error approving post:', err);
       setError((err as Error).message);
     } finally {
       setIsProcessing(false);

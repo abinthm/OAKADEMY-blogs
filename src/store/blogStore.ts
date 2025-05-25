@@ -62,7 +62,7 @@ export const useBlogStore = create<BlogState>()(
           })) || [];
 
           console.log('Fetched posts:', transformedPosts);
-          console.log('Pending posts:', transformedPosts.filter(post => post.status === 'pending'));
+          console.log('Pending posts:', transformedPosts.filter(post => post.status === 'pending' && !post.published));
           set({ posts: transformedPosts });
         } catch (error) {
           console.error('Error in fetchPosts:', error);
@@ -173,7 +173,7 @@ export const useBlogStore = create<BlogState>()(
       getPendingPosts: () => {
         const allPosts = get().posts;
         console.log('All posts in store:', allPosts);
-        const pendingPosts = allPosts.filter(post => post.status === 'pending');
+        const pendingPosts = allPosts.filter(post => post.status === 'pending' && !post.published);
         console.log('Filtered pending posts:', pendingPosts);
         return pendingPosts;
       },
