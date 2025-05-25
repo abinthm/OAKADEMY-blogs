@@ -46,6 +46,13 @@ const Navbar: React.FC = () => {
                   Write Story
                 </Link>
                 
+                <Link
+                  to="/pending-posts"
+                  className="px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-[#3B3D87] hover:bg-gray-50 transition-colors"
+                >
+                  Pending Posts
+                </Link>
+                
                 {user.isAdmin && (
                   <Link
                     to="/admin"
@@ -54,13 +61,6 @@ const Navbar: React.FC = () => {
                     Admin Dashboard
                   </Link>
                 )}
-
-                <Link
-                  to="/pending-posts"
-                  className="px-4 py-2 rounded-md text-sm text-gray-700 hover:text-[#3B3D87] transition-colors"
-                >
-                  Pending Posts
-                </Link>
 
                 <div className="relative ml-3">
                   <div className="flex items-center">
