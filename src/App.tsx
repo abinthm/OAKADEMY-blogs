@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
+import { Link } from 'react-router-dom';
 
 // Layout components
 import Navbar from './components/layout/Navbar';
@@ -18,6 +19,19 @@ import AdminDashboard from './pages/AdminDashboard';
 // Route protection
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminRoute from './components/auth/AdminRoute';
+
+const NotFound = () => (
+  <div className="container mx-auto px-4 py-8 flex flex-col items-center justify-center min-h-[60vh]">
+    <h1 className="text-3xl font-bold text-gray-900 mb-4">Page Not Found</h1>
+    <p className="text-gray-600 mb-8">The page you're looking for doesn't exist or has been moved.</p>
+    <Link
+      to="/"
+      className="px-4 py-2 bg-[#3B3D87] text-white rounded-md hover:bg-[#2d2f66] transition-colors"
+    >
+      Back to Home
+    </Link>
+  </div>
+);
 
 function App() {
   return (
@@ -67,6 +81,9 @@ function App() {
                 </AdminRoute>
               }
             />
+
+            {/* Catch-all route for 404s */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         
