@@ -1,17 +1,17 @@
 import { supabase } from './supabase';
 
-export const uploadImage = async (file: File, bucket: string): Promise<string> => {
+export const uploadImage = async (file: File): Promise<string> => {
   try {
     // Generate a unique file name
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
     const filePath = `${fileName}`;
 
-    console.log('Uploading file:', { bucket, filePath, type: file.type });
+    console.log('Uploading file:', { bucket: 'blog-images', filePath, type: file.type });
 
     // Upload the file
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from(bucket)
+      .from('blog-images')
       .upload(filePath, file, {
         cacheControl: '3600',
         upsert: true,
@@ -31,7 +31,7 @@ export const uploadImage = async (file: File, bucket: string): Promise<string> =
 
     // Get the public URL
     const { data } = supabase.storage
-      .from(bucket)
+      .from('blog-images')
       .getPublicUrl(filePath);
 
     if (!data.publicUrl) {
