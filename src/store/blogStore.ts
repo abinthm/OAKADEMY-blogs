@@ -52,7 +52,15 @@ export const useBlogStore = create<BlogState>()(
             return;
           }
 
-          set({ posts: posts || [] });
+          // Transform posts to include author name and ensure proper typing
+          const transformedPosts = posts?.map(post => ({
+            ...post,
+            authorName: post.author?.name || 'Community Member',
+            hashtags: post.hashtags || [],
+            status: post.status || 'draft'
+          })) || [];
+
+          set({ posts: transformedPosts });
         } catch (error) {
           console.error('Error in fetchPosts:', error);
         }
@@ -162,8 +170,7 @@ export const useBlogStore = create<BlogState>()(
       getPendingPosts: () => {
         const allPosts = get().posts;
         return allPosts.filter(post => 
-          post.status === 'pending' || 
-          (post.status === 'draft' && post.published === false)
+          post.status === 'pending' && post.published === false
         );
       },
 

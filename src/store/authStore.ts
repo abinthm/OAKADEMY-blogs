@@ -232,6 +232,12 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      partialize: (state) => ({
+        user: state.user ? {
+          ...state.user,
+          isAdmin: state.user.isAdmin // Ensure admin status is persisted
+        } : null
+      })
     }
   )
 );

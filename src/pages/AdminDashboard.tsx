@@ -30,6 +30,29 @@ const AdminDashboard: React.FC = () => {
       }
     };
     loadPosts();
+
+    // Subscribe to real-time changes
+    const subscription = supabase
+      .channel('posts_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'posts',
+          filter: 'status=eq.pending'
+        },
+        async () => {
+          // Refresh posts when changes occur
+          await fetchPosts();
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [fetchPosts]);
 
   const pendingPosts = getPendingPosts();
