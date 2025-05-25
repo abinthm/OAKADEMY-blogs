@@ -147,7 +147,7 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
             excerpt,
             cover_image,
             category,
-            published: publish,
+            published: false,
             status: publish ? 'pending' : 'draft',
             author_id: user.id,
             created_at: new Date().toISOString(),
@@ -155,10 +155,15 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
           })
           .select(`
             *,
-            author:profiles!posts_author_id_fkey(
+            author:profiles!posts_author_id_fkey (
               id,
               name,
               avatar_url,
+              role
+            ),
+            reviewer:profiles!posts_reviewed_by_fkey (
+              id,
+              name,
               role
             )
           `)
