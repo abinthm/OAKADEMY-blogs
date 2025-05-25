@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, X, Eye } from 'lucide-react';
+import { Check, X, Eye, RefreshCw } from 'lucide-react';
 import { useBlogStore } from '../store/blogStore';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabaseClient';
@@ -51,7 +51,7 @@ const AdminDashboard: React.FC = () => {
     checkAuth();
   }, [navigate]);
 
-  // Then, load posts once auth is confirmed
+  // Then, load posts once auth is confirmed and set up auto-refresh
   useEffect(() => {
     if (isCheckingAuth) return;
 
@@ -66,7 +66,11 @@ const AdminDashboard: React.FC = () => {
         setIsLoading(false);
       }
     };
+    
     loadPosts();
+
+    // Set up auto-refresh every 30 seconds
+    const refreshInterval = setInterval(loadPosts, 30000);
 
     // Subscribe to real-time changes
     const subscription = supabase
@@ -86,9 +90,23 @@ const AdminDashboard: React.FC = () => {
       .subscribe();
 
     return () => {
+      clearInterval(refreshInterval);
       subscription.unsubscribe();
     };
   }, [isCheckingAuth, fetchPosts]);
+
+  // Manual refresh function
+  const handleManualRefresh = async () => {
+    setIsLoading(true);
+    try {
+      await fetchPosts();
+    } catch (err) {
+      console.error('Error refreshing posts:', err);
+      setError('Failed to refresh posts. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Show loading state while checking auth
   if (isCheckingAuth) {
@@ -103,13 +121,21 @@ const AdminDashboard: React.FC = () => {
   }
 
   const pendingPosts = getPendingPosts();
-  console.log('Rendering pending posts:', pendingPosts);
 
   // Loading state
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Admin Dashboard</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+          <button
+            disabled
+            className="px-4 py-2 bg-gray-200 text-gray-500 rounded-md flex items-center gap-2"
+          >
+            <RefreshCw className="w-4 h-4 animate-spin" />
+            Refreshing...
+          </button>
+        </div>
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
           <div className="p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Loading Posts...</h2>
@@ -203,7 +229,19 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Admin Dashboard</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+        <button
+          onClick={handleManualRefresh}
+          disabled={isLoading}
+          className={`px-4 py-2 ${
+            isLoading ? 'bg-gray-200 text-gray-500' : 'bg-blue-600 text-white hover:bg-blue-700'
+          } rounded-md flex items-center gap-2 transition-colors`}
+        >
+          <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          {isLoading ? 'Refreshing...' : 'Refresh'}
+        </button>
+      </div>
       
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
@@ -257,10 +295,10 @@ const AdminDashboard: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">{post.excerpt}</p>
-                  <div className="text-xs text-gray-500">
+                  <p className="text-sm text-gray-600 mb-2">
                     By {post.authorName} • {new Date(post.created_at).toLocaleDateString()}
-                  </div>
+                  </p>
+                  <p className="text-gray-700 line-clamp-2">{post.excerpt || post.content}</p>
                 </div>
               ))}
             </div>
@@ -268,22 +306,23 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Rejection Modal */}
       {selectedPost && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-lg w-full">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Reject Post: {selectedPost.title}
-            </h3>
+          <div className="bg-white rounded-lg max-w-lg w-full p-6">
+            <h3 className="text-lg font-semibold mb-4">Reject Post: {selectedPost.title}</h3>
             <textarea
               value={reviewNotes}
               onChange={(e) => setReviewNotes(e.target.value)}
               placeholder="Please provide feedback for the author..."
-              className="w-full h-32 p-2 border border-gray-300 rounded-md mb-4"
+              className="w-full h-32 p-2 border rounded-md mb-4"
+              disabled={isProcessing}
             />
-            <div className="flex justify-end space-x-3">
+            <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setSelectedPost(null)}
-                className="px-4 py-2 text-gray-700 hover:text-gray-900"
+                disabled={isProcessing}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
               >
                 Cancel
               </button>
@@ -292,7 +331,7 @@ const AdminDashboard: React.FC = () => {
                 disabled={isProcessing}
                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
               >
-                Reject
+                {isProcessing ? 'Rejecting...' : 'Reject Post'}
               </button>
             </div>
           </div>
