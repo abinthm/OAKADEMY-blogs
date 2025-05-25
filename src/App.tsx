@@ -15,6 +15,7 @@ import WriteBlogPage from './pages/WriteBlogPage';
 import ViewBlogPage from './pages/ViewBlogPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
+import PendingPostsPage from './pages/PendingPostsPage';
 
 // Route protection
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -56,6 +57,7 @@ function App() {
             <Route path="/write" element={<ProtectedRoute><WriteBlogPage /></ProtectedRoute>} />
             <Route path="/edit/:id" element={<ProtectedRoute><WriteBlogPage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/pending-posts" element={<ProtectedRoute><PendingPostsPage /></ProtectedRoute>} />
             
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />

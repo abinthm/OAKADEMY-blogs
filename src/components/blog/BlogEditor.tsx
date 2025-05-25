@@ -199,7 +199,10 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
 
         // Navigate after store is updated
         if (publish) {
-          navigate('/admin');
+          // Show success message
+          const message = 'Your post has been submitted for approval. You can view its status in your pending posts.';
+          alert(message); // We'll replace this with a better UI later
+          navigate('/pending-posts');
         } else {
           navigate(`/post/${postData.id}`);
         }

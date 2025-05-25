@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, PenSquare, User, LogOut } from 'lucide-react';
+import { Menu, X, PenSquare, User, LogOut, Clock } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import logo from '../../assets/Frame 1.svg';
 
@@ -55,6 +55,13 @@ const Navbar: React.FC = () => {
                   </Link>
                 )}
 
+                <Link
+                  to="/pending-posts"
+                  className="px-4 py-2 rounded-md text-sm text-gray-700 hover:text-[#3B3D87] transition-colors"
+                >
+                  Pending Posts
+                </Link>
+
                 <div className="relative ml-3">
                   <div className="flex items-center">
                     <button
@@ -107,6 +114,17 @@ const Navbar: React.FC = () => {
                           <div className="flex items-center">
                             <PenSquare className="mr-2 h-4 w-4" />
                             Write Story
+                          </div>
+                        </Link>
+                        <Link
+                          to="/pending-posts"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          role="menuitem"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className="flex items-center">
+                            <Clock className="mr-2 h-4 w-4" />
+                            Pending Posts
                           </div>
                         </Link>
                         {user.isAdmin && (
@@ -203,6 +221,13 @@ const Navbar: React.FC = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Write Story
+                </Link>
+                <Link
+                  to="/pending-posts"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#3B3D87] hover:bg-gray-50"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Pending Posts
                 </Link>
                 {user.isAdmin && (
                   <Link
