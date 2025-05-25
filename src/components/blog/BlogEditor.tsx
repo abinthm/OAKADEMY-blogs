@@ -155,7 +155,7 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
           })
           .select(`
             *,
-            author:profiles(
+            author:profiles!posts_author_id_fkey(
               id,
               name,
               avatar_url,
