@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, PenSquare, User, LogOut, Clock } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import logo from '../../assets/Frame 1.svg';
+import NotificationBell from '../common/NotificationBell';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -62,102 +63,105 @@ const Navbar: React.FC = () => {
                   </Link>
                 )}
 
-                <div className="relative ml-3">
-                  <div className="flex items-center">
-                    <button
-                      type="button"
-                      className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B3D87]"
-                      onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    >
-                      {user.avatar && !avatarError ? (
-                        <img
-                          className="h-8 w-8 rounded-full object-cover"
-                          src={user.avatar}
-                          alt={user.name}
-                          onError={() => setAvatarError(true)}
-                        />
-                      ) : (
-                        <div className="h-8 w-8 rounded-full bg-[#3B3D87] bg-opacity-20 flex items-center justify-center">
-                          <span className="text-[#3B3D87] font-medium">
-                            {user.name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                    </button>
-                  </div>
-                  
-                  {isMenuOpen && (
-                    <div 
-                      className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
-                      role="menu"
-                      aria-orientation="vertical"
-                      aria-labelledby="user-menu-button"
-                    >
-                      <div className="py-1" role="none">
-                        <Link
-                          to="/profile"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          role="menuitem"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <div className="flex items-center">
-                            <User className="mr-2 h-4 w-4" />
-                            Your Profile
+                <div className="flex items-center space-x-2">
+                  <NotificationBell />
+                  <div className="relative">
+                    <div className="flex items-center">
+                      <button
+                        type="button"
+                        className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B3D87]"
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                      >
+                        {user.avatar && !avatarError ? (
+                          <img
+                            className="h-8 w-8 rounded-full object-cover"
+                            src={user.avatar}
+                            alt={user.name}
+                            onError={() => setAvatarError(true)}
+                          />
+                        ) : (
+                          <div className="h-8 w-8 rounded-full bg-[#3B3D87] bg-opacity-20 flex items-center justify-center">
+                            <span className="text-[#3B3D87] font-medium">
+                              {user.name.charAt(0).toUpperCase()}
+                            </span>
                           </div>
-                        </Link>
-                        <Link
-                          to="/write"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          role="menuitem"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <div className="flex items-center">
-                            <PenSquare className="mr-2 h-4 w-4" />
-                            Write Story
-                          </div>
-                        </Link>
-                        <Link
-                          to="/pending-posts"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          role="menuitem"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <div className="flex items-center">
-                            <Clock className="mr-2 h-4 w-4" />
-                            Pending Posts
-                          </div>
-                        </Link>
-                        {user.isAdmin && (
+                        )}
+                      </button>
+                    </div>
+                    
+                    {isMenuOpen && (
+                      <div 
+                        className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
+                        role="menu"
+                        aria-orientation="vertical"
+                        aria-labelledby="user-menu-button"
+                      >
+                        <div className="py-1" role="none">
                           <Link
-                            to="/admin"
+                            to="/profile"
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                             role="menuitem"
                             onClick={() => setIsMenuOpen(false)}
                           >
                             <div className="flex items-center">
                               <User className="mr-2 h-4 w-4" />
-                              Admin Dashboard
+                              Your Profile
                             </div>
                           </Link>
-                        )}
+                          <Link
+                            to="/write"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            role="menuitem"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <div className="flex items-center">
+                              <PenSquare className="mr-2 h-4 w-4" />
+                              Write Story
+                            </div>
+                          </Link>
+                          <Link
+                            to="/pending-posts"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            role="menuitem"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <div className="flex items-center">
+                              <Clock className="mr-2 h-4 w-4" />
+                              Pending Posts
+                            </div>
+                          </Link>
+                          {user.isAdmin && (
+                            <Link
+                              to="/admin"
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              role="menuitem"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              <div className="flex items-center">
+                                <User className="mr-2 h-4 w-4" />
+                                Admin Dashboard
+                              </div>
+                            </Link>
+                          )}
+                        </div>
+                        <div className="py-1">
+                          <button
+                            onClick={() => {
+                              handleLogout();
+                              setIsMenuOpen(false);
+                            }}
+                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            role="menuitem"
+                          >
+                            <div className="flex items-center">
+                              <LogOut className="mr-2 h-4 w-4" />
+                              Sign out
+                            </div>
+                          </button>
+                        </div>
                       </div>
-                      <div className="py-1">
-                        <button
-                          onClick={() => {
-                            handleLogout();
-                            setIsMenuOpen(false);
-                          }}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          role="menuitem"
-                        >
-                          <div className="flex items-center">
-                            <LogOut className="mr-2 h-4 w-4" />
-                            Sign out
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </>
             ) : (

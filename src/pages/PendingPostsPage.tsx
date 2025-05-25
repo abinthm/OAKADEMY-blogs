@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBlogStore } from '../store/blogStore';
 import { useAuthStore } from '../store/authStore';
+import { useNotificationStore } from '../store/notificationStore';
 import BlogCard from '../components/blog/BlogCard';
 import { Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
@@ -9,6 +10,7 @@ const PendingPostsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { posts } = useBlogStore();
+  const { addNotification } = useNotificationStore();
   
   // Separate pending and rejected posts
   const pendingPosts = posts.filter(
@@ -18,6 +20,18 @@ const PendingPostsPage: React.FC = () => {
   const rejectedPosts = posts.filter(
     post => post.status === 'rejected' && post.author_id === user?.id
   );
+
+  // Show notifications for rejected posts when the page loads
+  useEffect(() => {
+    rejectedPosts.forEach(post => {
+      if (post.rejection_reason) {
+        addNotification(
+          'error',
+          `Your post "${post.title}" was rejected. Reason: ${post.rejection_reason}`
+        );
+      }
+    });
+  }, [rejectedPosts, addNotification]);
 
   if (!user) {
     navigate('/login');
