@@ -1,9 +1,8 @@
 {
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/admin", "destination": "/index.html" },
+    { "source": "/admin/(.*)", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
     {
@@ -11,7 +10,7 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
+          "value": "s-maxage=1, stale-while-revalidate"
         }
       ]
     }
