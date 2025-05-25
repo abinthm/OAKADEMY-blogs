@@ -45,7 +45,6 @@ export const useBlogStore = create<BlogState>()(
                 role
               )
             `)
-            .eq('published', true)
             .order('created_at', { ascending: false });
 
           if (error) {
@@ -161,7 +160,11 @@ export const useBlogStore = create<BlogState>()(
       },
 
       getPendingPosts: () => {
-        return get().posts.filter((post) => post.status === 'pending');
+        const allPosts = get().posts;
+        return allPosts.filter(post => 
+          post.status === 'pending' || 
+          (post.status === 'draft' && post.published === false)
+        );
       },
 
       approvePost: (id, reviewNotes) => {

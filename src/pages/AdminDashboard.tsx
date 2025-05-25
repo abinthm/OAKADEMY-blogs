@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, X, Eye } from 'lucide-react';
 import { useBlogStore } from '../store/blogStore';
@@ -9,11 +9,21 @@ import { BlogPost } from '../types';
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { getPendingPosts, approvePost, rejectPost } = useBlogStore();
+  const { getPendingPosts, approvePost, rejectPost, fetchPosts } = useBlogStore();
   const [reviewNotes, setReviewNotes] = useState<string>('');
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      setIsLoading(true);
+      await fetchPosts();
+      setIsLoading(false);
+    };
+    loadPosts();
+  }, [fetchPosts]);
 
   const pendingPosts = getPendingPosts();
 
@@ -103,7 +113,18 @@ const AdminDashboard: React.FC = () => {
             Pending Posts ({pendingPosts.length})
           </h2>
 
-          {pendingPosts.length === 0 ? (
+          {isLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="border border-gray-200 rounded-lg p-4 animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+                  <div className="h-3 bg-gray-200 rounded w-1/4 mb-4" />
+                  <div className="h-3 bg-gray-200 rounded w-full mb-2" />
+                  <div className="h-3 bg-gray-200 rounded w-2/3" />
+                </div>
+              ))}
+            </div>
+          ) : pendingPosts.length === 0 ? (
             <p className="text-gray-500">No posts pending review.</p>
           ) : (
             <div className="space-y-6">
