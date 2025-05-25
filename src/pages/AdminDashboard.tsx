@@ -16,11 +16,18 @@ const AdminDashboard: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Fetch posts when component mounts and after any approval/rejection
   useEffect(() => {
     const loadPosts = async () => {
-      setIsLoading(true);
-      await fetchPosts();
-      setIsLoading(false);
+      try {
+        setIsLoading(true);
+        await fetchPosts();
+      } catch (err) {
+        console.error('Error loading posts:', err);
+        setError('Failed to load posts. Please try refreshing the page.');
+      } finally {
+        setIsLoading(false);
+      }
     };
     loadPosts();
   }, [fetchPosts]);
@@ -28,12 +35,8 @@ const AdminDashboard: React.FC = () => {
   const pendingPosts = getPendingPosts();
 
   if (!user?.isAdmin) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-red-600 mb-4">Unauthorized Access</h1>
-        <p className="text-gray-600">You do not have permission to access this page.</p>
-      </div>
-    );
+    navigate('/');
+    return null;
   }
 
   const handleApprove = async (post: BlogPost) => {
@@ -57,6 +60,8 @@ const AdminDashboard: React.FC = () => {
       approvePost(post.id, reviewNotes);
       setSelectedPost(null);
       setReviewNotes('');
+      // Refresh posts after approval
+      await fetchPosts();
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -90,6 +95,8 @@ const AdminDashboard: React.FC = () => {
       rejectPost(post.id, reviewNotes);
       setSelectedPost(null);
       setReviewNotes('');
+      // Refresh posts after rejection
+      await fetchPosts();
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -99,11 +106,11 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Admin Dashboard</h1>
-
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Admin Dashboard</h1>
+      
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-red-600">{error}</p>
+          <p className="text-red-800">{error}</p>
         </div>
       )}
 
@@ -125,78 +132,86 @@ const AdminDashboard: React.FC = () => {
               ))}
             </div>
           ) : pendingPosts.length === 0 ? (
-            <p className="text-gray-500">No posts pending review.</p>
+            <p className="text-gray-600">No posts pending review.</p>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {pendingPosts.map((post) => (
                 <div
                   key={post.id}
-                  className="border border-gray-200 rounded-lg p-4"
+                  className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900">
-                        {post.title}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        by {post.authorName} • {new Date(post.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => navigate(`/post/${post.id}`)}
-                      className="text-[#3B3D87] hover:text-[#2d2f66]"
-                      title="View Post"
-                    >
-                      <Eye size={20} />
-                    </button>
-                  </div>
-
-                  <p className="text-gray-600 mb-4">{post.excerpt}</p>
-
-                  {selectedPost?.id === post.id ? (
-                    <div className="space-y-4">
-                      <textarea
-                        value={reviewNotes}
-                        onChange={(e) => setReviewNotes(e.target.value)}
-                        placeholder="Add review notes..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#3B3D87] focus:border-[#3B3D87]"
-                        rows={3}
-                      />
-                      <div className="flex justify-end space-x-3">
-                        <button
-                          onClick={() => handleReject(post)}
-                          disabled={isProcessing}
-                          className="flex items-center px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
-                        >
-                          <X size={16} className="mr-2" />
-                          Reject
-                        </button>
-                        <button
-                          onClick={() => handleApprove(post)}
-                          disabled={isProcessing}
-                          className="flex items-center px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700"
-                        >
-                          <Check size={16} className="mr-2" />
-                          Approve
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex justify-end space-x-3">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-medium text-gray-900">{post.title}</h3>
+                    <div className="flex space-x-2">
                       <button
-                        onClick={() => setSelectedPost(post)}
-                        className="flex items-center px-4 py-2 text-white bg-[#3B3D87] rounded-md hover:bg-[#2d2f66]"
+                        onClick={() => window.open(`/post/${post.id}`, '_blank')}
+                        className="p-1 text-gray-500 hover:text-gray-700"
+                        title="View Post"
                       >
-                        Review
+                        <Eye className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleApprove(post)}
+                        disabled={isProcessing}
+                        className="p-1 text-green-600 hover:text-green-800"
+                        title="Approve"
+                      >
+                        <Check className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedPost(post);
+                          setReviewNotes('');
+                        }}
+                        disabled={isProcessing}
+                        className="p-1 text-red-600 hover:text-red-800"
+                        title="Reject"
+                      >
+                        <X className="w-5 h-5" />
                       </button>
                     </div>
-                  )}
+                  </div>
+                  <p className="text-sm text-gray-600 mb-2">{post.excerpt}</p>
+                  <div className="text-xs text-gray-500">
+                    By {post.authorName} • {new Date(post.created_at).toLocaleDateString()}
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </div>
       </div>
+
+      {selectedPost && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 max-w-lg w-full">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Reject Post: {selectedPost.title}
+            </h3>
+            <textarea
+              value={reviewNotes}
+              onChange={(e) => setReviewNotes(e.target.value)}
+              placeholder="Please provide feedback for the author..."
+              className="w-full h-32 p-2 border border-gray-300 rounded-md mb-4"
+            />
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setSelectedPost(null)}
+                className="px-4 py-2 text-gray-700 hover:text-gray-900"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleReject(selectedPost)}
+                disabled={isProcessing}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                Reject
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

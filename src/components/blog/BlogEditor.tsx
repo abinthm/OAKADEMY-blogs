@@ -26,7 +26,7 @@ const categories: Category[] = [
 
 const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
   const navigate = useNavigate();
-  const { addPost, updatePost, getPostById, saveDraft, publishDraft } = useBlogStore();
+  const { addPost, updatePost, getPostById, saveDraft, publishDraft, fetchPosts } = useBlogStore();
   const { user } = useAuthStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -128,7 +128,8 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
         cover_image,
         category,
         hashtags,
-        published: publish
+        published: publish,
+        status: publish ? 'pending' as const : 'draft' as const
       };
       
       if (postId) {
@@ -147,12 +148,20 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
             cover_image,
             category,
             published: publish,
-            status: 'pending',
+            status: publish ? 'pending' : 'draft',
             author_id: user.id,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           })
-          .select()
+          .select(`
+            *,
+            author:profiles(
+              id,
+              name,
+              avatar_url,
+              role
+            )
+          `)
           .single();
 
         if (postError) throw postError;
@@ -175,23 +184,20 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
 
         // Add the post to the store
         addPost({
-          id: postData.id,
-          title: postData.title,
-          content: postData.content,
-          excerpt: postData.excerpt,
-          cover_image: postData.cover_image,
-          category: postData.category,
+          ...postData,
           hashtags,
-          author_id: user.id,
-          authorName: user.name,
-          created_at: postData.created_at,
-          updated_at: postData.updated_at,
-          published: postData.published,
-          status: postData.status
+          authorName: user.name
         });
 
+        // Refresh posts in the store
+        await fetchPosts();
+
         // Navigate after store is updated
-        navigate(`/post/${postData.id}`);
+        if (publish) {
+          navigate('/admin');
+        } else {
+          navigate(`/post/${postData.id}`);
+        }
         return;
       }
       
@@ -199,7 +205,9 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ postId, isDraft = false }) => {
       setTimeout(() => setSaved(false), 3000);
       
       if (publish) {
-        navigate('/');
+        // Refresh posts and navigate to admin dashboard
+        await fetchPosts();
+        navigate('/admin');
       }
     } catch (err) {
       setError((err as Error).message || 'Failed to save post. Please try again.');
