@@ -22,18 +22,18 @@ const Navbar: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0">
-              <img src={logo} alt="Logo" className="h-14 w-auto" />
-            </Link>
+            <a href="https://oakademy.vercel.app/" target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+              <img src={logo} alt="Logo" className="h-10 md:h-12 lg:h-14 w-auto" />
+            </a>
           </div>
           
-          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center h-20">
+          <div className="flex items-center justify-center w-full xl:w-auto">
             <Link to="/" className="flex-shrink-0">
-              <span className="text-[#3B3D87] font-serif text-base md:text-2xl font-bold whitespace-nowrap tracking-wide">Voice of the Oak</span>
+              <span className="text-[#3B3D87] font-serif text-base md:text-xl lg:text-2xl font-bold whitespace-nowrap tracking-wide">Voice of the Oak</span>
             </Link>
           </div>
 
-          <div className="hidden md:flex md:items-center md:space-x-4">
+          <div className="hidden lg:flex lg:items-center lg:space-x-4">
             <Link to="/" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-[#3B3D87] transition-colors">
               Home
             </Link>
@@ -42,7 +42,7 @@ const Navbar: React.FC = () => {
               <>
                 <Link
                   to="/write"
-                  className="ml-4 px-4 py-2 rounded-md text-sm font-medium text-white bg-[#3B3D87] hover:bg-[#2d2f66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B3D87] transition-colors"
+                  className="px-4 py-2 rounded-md text-sm font-medium text-white bg-[#3B3D87] hover:bg-[#2d2f66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B3D87] transition-colors"
                 >
                   Write Story
                 </Link>
@@ -182,7 +182,7 @@ const Navbar: React.FC = () => {
             )}
           </div>
           
-          <div className="flex md:hidden">
+          <div className="flex lg:hidden">
             <button
               type="button"
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#3B3D87]"
@@ -200,7 +200,7 @@ const Navbar: React.FC = () => {
       </div>
       
       {isMenuOpen && (
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <Link
               to="/"
