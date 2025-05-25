@@ -42,12 +42,14 @@ export const useBlogStore = create<BlogState>()(
                 id,
                 name,
                 avatar_url,
-                role
+                role,
+                is_admin
               ),
               reviewer:profiles!posts_reviewed_by_fkey (
                 id,
                 name,
-                role
+                role,
+                is_admin
               )
             `)
             .order('created_at', { ascending: false });
@@ -61,6 +63,7 @@ export const useBlogStore = create<BlogState>()(
           const transformedPosts = posts?.map(post => ({
             ...post,
             authorName: post.author?.name || 'Community Member',
+            authorRole: post.author?.role || 'Community Contributor',
             hashtags: post.hashtags || [],
             status: post.status || 'draft',
             published: post.published || false,

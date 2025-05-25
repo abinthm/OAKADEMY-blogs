@@ -15,8 +15,6 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
   const { user } = useAuthStore();
   const { deletePost } = useBlogStore();
   const [authorAvatar, setAuthorAvatar] = useState<string | null>(null);
-  const [authorRole, setAuthorRole] = useState<string | null>(null);
-  const [authorName, setAuthorName] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState(false);
 
   const formattedDate = post.created_at ? new Date(post.created_at).toLocaleDateString('en-US', {
@@ -31,30 +29,28 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
   const canDelete = isAuthor || isAdmin;
 
   useEffect(() => {
-    const fetchAuthorInfo = async () => {
+    const fetchAuthorAvatar = async () => {
       try {
         const { data: authorData, error } = await supabase
           .from('profiles')
-          .select('name, avatar_url, role')
+          .select('avatar_url')
           .eq('id', post.author_id)
           .single();
 
         if (error) {
-          console.error('Error fetching author info:', error);
+          console.error('Error fetching author avatar:', error);
           return;
         }
 
         if (authorData) {
-          setAuthorName(authorData.name);
           setAuthorAvatar(authorData.avatar_url);
-          setAuthorRole(authorData.role);
         }
       } catch (error) {
-        console.error('Error in fetchAuthorInfo:', error);
+        console.error('Error in fetchAuthorAvatar:', error);
       }
     };
 
-    fetchAuthorInfo();
+    fetchAuthorAvatar();
   }, [post.author_id]);
 
   const handleDelete = async (e: React.MouseEvent) => {
@@ -134,21 +130,21 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
                 {authorAvatar && !avatarError ? (
                   <img
                     src={authorAvatar}
-                    alt={authorName || ''}
+                    alt={post.authorName || ''}
                     className="h-10 w-10 rounded-full object-cover"
                     onError={() => setAvatarError(true)}
                   />
                 ) : (
                   <div className="h-10 w-10 rounded-full bg-[#3B3D87] bg-opacity-20 flex items-center justify-center">
                     <span className="text-[#3B3D87] font-medium">
-                      {(authorName || '').charAt(0).toUpperCase()}
+                      {(post.authorName || '').charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
                 
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-900">{authorName}</p>
-                  <p className="text-sm text-[#3B3D87]">{authorRole}</p>
+                  <p className="text-sm font-medium text-gray-900">{post.authorName}</p>
+                  <p className="text-sm text-[#3B3D87]">{post.authorRole || 'Community Contributor'}</p>
                 </div>
               </Link>
             </div>

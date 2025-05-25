@@ -19,6 +19,7 @@ export interface BlogPost {
   cover_image?: string;
   author_id: string;
   authorName?: string;
+  authorRole?: string;
   category: string;
   hashtags: string[];
   created_at: string;
