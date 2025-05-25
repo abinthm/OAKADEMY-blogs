@@ -80,7 +80,7 @@ const HomePage: React.FC = () => {
           <span className="block lg:inline -mt-2">Our Future.</span>
         </h1>
         <p className="text-sm md:text-base font-semibold text-black mb-3 text-center">
-          Welcome to Voices of Oak
+          Welcome to Voice of the OK
         </p>
         <p className="text-xs md:text-sm text-black mb-3 text-center">
           The Official Blog & Storytelling Platform of Oakademy
