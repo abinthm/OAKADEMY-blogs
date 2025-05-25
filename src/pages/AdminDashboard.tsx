@@ -15,12 +15,45 @@ const AdminDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
+  // First, check authentication and admin status
   useEffect(() => {
-    if (!user?.isAdmin) {
-      navigate('/', { replace: true });
-      return;
-    }
+    const checkAuth = async () => {
+      try {
+        const { data: { session }, error: authError } = await supabase.auth.getSession();
+        
+        if (authError) throw authError;
+        
+        if (!session) {
+          navigate('/', { replace: true });
+          return;
+        }
+
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('is_admin')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profileError || !profile?.is_admin) {
+          navigate('/', { replace: true });
+          return;
+        }
+
+        setIsCheckingAuth(false);
+      } catch (err) {
+        console.error('Auth check error:', err);
+        navigate('/', { replace: true });
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
+
+  // Then, load posts once auth is confirmed
+  useEffect(() => {
+    if (isCheckingAuth) return;
 
     const loadPosts = async () => {
       try {
@@ -47,19 +80,31 @@ const AdminDashboard: React.FC = () => {
           filter: 'status=eq.pending'
         },
         async () => {
-          // Refresh posts when changes occur
+          console.log('Received real-time update');
           await fetchPosts();
         }
       )
       .subscribe();
 
-    // Cleanup subscription on unmount
     return () => {
       subscription.unsubscribe();
     };
-  }, [fetchPosts, user, navigate]);
+  }, [isCheckingAuth, fetchPosts]);
+
+  // Show loading state while checking auth
+  if (isCheckingAuth) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-6 w-24 bg-gray-200 rounded mb-4"></div>
+          <div className="h-4 w-36 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   const pendingPosts = getPendingPosts();
+  console.log('Rendering pending posts:', pendingPosts);
 
   // Loading state
   if (isLoading) {
