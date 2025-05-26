@@ -20,14 +20,14 @@ const Navbar: React.FC = () => {
   return (
     <nav className="bg-white shadow-sm">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
+        <div className="flex justify-between items-center h-16 relative">
+          <div className="flex items-center z-10">
             <a href="https://oakademy.vercel.app/" target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
               <img src={logo} alt="Logo" className="h-10 md:h-12 lg:h-14 w-auto" />
             </a>
           </div>
           
-          <div className="flex items-center justify-center w-full xl:w-auto">
+          <div className="flex items-center justify-center w-full left-1/2 top-1/2 transform lg:absolute lg:-translate-x-1/2 lg:-translate-y-1/2 lg:w-auto lg:top-1/2 lg:left-1/2">
             <Link to="/" className="flex-shrink-0">
               <span className="text-[#3B3D87] font-serif text-base md:text-xl lg:text-2xl font-bold whitespace-nowrap tracking-wide">Voice of the Oak</span>
             </Link>
